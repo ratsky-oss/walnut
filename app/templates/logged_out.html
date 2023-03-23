@@ -1,0 +1,140 @@
+<!-- Copyright (c) 2023 Shvora Nikita, Livitsky Andrey
+This app, Ratsky Walnut, is licensed under the GNU General Public License version 3.0 (GPL 3.0).
+All source code, design, and other intellectual property rights of Ratsky Walnut, including but not limited to text, graphics, logos, images, and software, are the property of the Ratsky community and are protected by international copyright laws.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this app and associated documentation files (the "App"), to deal in the App without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the App, and to permit persons to whom the App is furnished to do so, subject to the following conditions:
+ 1 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the App.
+ 2 Any distribution of the App or derivative works must include a copy of the GPL 3.0 license.
+ 3 The App is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the App or the use or other dealings in the App.
+For more information on the GPL 3.0 license, please visit https://www.gnu.org/licenses/gpl-3.0.en.html. -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Walnut | Login</title>
+    <!-- HTML5 Shim and Respond.js IE10 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 10]>
+		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+		<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta name="author" content="CodedThemes" />
+
+    <!-- Favicon icon -->
+    <link rel="icon" href="{% static 'images/logo.ico' %}" type="image/x-icon">
+    <!-- fontawesome icon -->
+    <link rel="stylesheet" href="{% static 'fonts/fontawesome/css/fontawesome-all.min.css' %}">
+    <!-- animation css -->
+    <link rel="stylesheet" href="{% static 'plugins/animation/css/animate.min.css' %}">
+    <!-- vendor css -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+
+<body>
+    <div class="auth-wrapper">
+
+            <div class="auth-content subscribe">
+                <div class="card">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 col-lg-6 d-none d-md-flex d-lg-flex theme-bg align-items-center justify-content-center">
+                            <img src="{% static 'images/logo.svg' %}" alt="lock images" class="img-fluid">
+                        </div>
+                        <div class="col-md-8 col-lg-6">
+                            <div class="card-body text-center">
+                                <div class="row justify-content-center">
+                                    <div class="col-sm-10">
+                                        {% csrf_token %}
+                                        <form id="loginForm">
+                                            <h3 class="mb-4">Login</h3>
+                                            <div class="input-group mb-3">
+                                                <input name="username" type="text" class="form-control" placeholder="Username">
+                                            </div>
+                                            <div class="input-group mb-4">
+                                                <input name="password" type="password" class="form-control" placeholder="Password">
+                                            </div>
+                                        </form>
+                                        <button id="LoginSubmit" class="btn btn-primary shadow-2 mb-4">Login</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <ul class="nav nav-pills nav-fill mb-0 border-bottom" id="pills-tab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true"><i class="feather icon-unlock py-2"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false"><i class="feather icon-user-plus py-2"></i></a>
+                </li>
+            </ul>
+            <div class="tab-content text-center" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                    <div class="mb-4">
+                        <i class="feather icon-unlock auth-icon"></i>
+                    </div>
+                    <h3 class="mb-4">Login</h3>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" placeholder="Email">
+                    </div>
+                    <div class="input-group mb-4">
+                        <input type="password" class="form-control" placeholder="password">
+                    </div>
+                    <div class="form-group text-left">
+                        <div class="checkbox checkbox-fill d-inline">
+                            <input type="checkbox" name="checkbox-fill-1" id="checkbox-fill-a1" checked="">
+                            <label for="checkbox-fill-a1" class="cr"> Save Details</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary shadow-2 mb-4">Login</button>
+                    <p class="mb-2 text-muted">Forgot password? <a href="auth-reset-password.html">Reset</a></p>
+                </div>
+                <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                    <div class="mb-4">
+                        <i class="feather icon-user-plus auth-icon"></i>
+                    </div>
+                    <h3 class="mb-4">Sign up</h3>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Username">
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control" placeholder="Email">
+                    </div>
+                    <div class="input-group mb-4">
+                        <input type="password" class="form-control" placeholder="password">
+                    </div>
+                    <div class="form-group text-left">
+                        <div class="checkbox checkbox-fill d-inline">
+                            <input type="checkbox" name="checkbox-fill-1" id="checkbox-fill-1" checked="">
+                            <label for="checkbox-fill-1" class="cr"> Save Details</label>
+                        </div>
+                    </div>
+                    <div class="form-group text-left">
+                        <div class="checkbox checkbox-fill d-inline">
+                            <input type="checkbox" name="checkbox-fill-2" id="checkbox-fill-2">
+                            <label for="checkbox-fill-2" class="cr">Send me the <a href="#!"> Newsletter</a> weekly.</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary shadow-2 mb-4">Sign up</button>
+                </div>
+            </div> -->
+
+    </div>
+    <footer class="no-user-select">
+        <p class="fixed-button text-center"> Ratsky Walnut  Copyright © 2023  Shvora Nikita, Livitsky Andrey</p>
+    </footer>
+    <!-- Required Js -->
+    <script src="{% static 'js/vendor-all.min.js' %}"></script>
+    <script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/login.js' %}"></script>
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#DEBHELPER#
+set -e
+
+systemctl stop walnut.target

@@ -1,0 +1,184 @@
+<!-- Copyright (c) 2023 Shvora Nikita, Livitsky Andrey
+This app, Ratsky Walnut, is licensed under the GNU General Public License version 3.0 (GPL 3.0).
+All source code, design, and other intellectual property rights of Ratsky Walnut, including but not limited to text, graphics, logos, images, and software, are the property of the Ratsky community and are protected by international copyright laws.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this app and associated documentation files (the "App"), to deal in the App without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the App, and to permit persons to whom the App is furnished to do so, subject to the following conditions:
+ 1 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the App.
+ 2 Any distribution of the App or derivative works must include a copy of the GPL 3.0 license.
+ 3 The App is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the App or the use or other dealings in the App.
+For more information on the GPL 3.0 license, please visit https://www.gnu.org/licenses/gpl-3.0.en.html. -->
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+
+<!-- [ Pre-loader ] End -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Modal Windows ] Start -->
+                        <div id="editDMS" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editDMSTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editDMSTitle">Edit DMS</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        {% csrf_token %}
+                                        <form id="editDMSForm">
+                                            <div class="form-group">
+                                                <label for="DMSFormControlSelect1">Select type</label>
+                                                <select name="type" class="form-control editDMSinput" id="DMSFormAction">
+                                                    <option value="mysql">mysql</option>
+                                                    <option value="postgres">postgres</option>
+                                                    <option value="mssql">mssql</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Version</label>
+                                                <input name="version" type="text" class="form-control editDMSinput" placeholder="1.14">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Host</label>
+                                                <input name="host" type="text" class="form-control editDMSinput" placeholder="192.168.223.13">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Port</label>
+                                                <input name="port" type="number" class="form-control editDMSinput" placeholder="5432">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Username</label>
+                                                <input name="username" type="text" class="form-control editDMSinput" placeholder="backup">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Password</label>
+                                                <input name="password" type="Password" class="form-control editDMSinput" placeholder="qwerty">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer editDMS-buttons">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="deleteDMS" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteDMSTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteDMSTitle">delete DMS</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to delete the DMS</p>
+                                    </div>
+                                    <div class="modal-footer deleteDMS-buttons">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="AddDMS" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="AddDMSTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="AddDMSTitle">Create DMS</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        {% csrf_token %}
+                                        <form id="AddDMSForm">
+                                            <div class="form-group">
+                                                <label for="DMSFormControlSelect1">Select type</label>
+                                                <select name="type" class="form-control" id="DMSFormAction">
+                                                    <option value="mysql">mysql</option>
+                                                    <option value="postgres">postgres</option>
+                                                    <option value="mssql">mssql</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Version</label>
+                                                <input name="version" type="text" class="form-control" placeholder="1.14">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Host</label>
+                                                <input name="host" type="text" class="form-control" placeholder="192.168.223.13">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Port</label>
+                                                <input name="port" type="number" class="form-control" placeholder="5432">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Username</label>
+                                                <input name="username" type="text" class="form-control" placeholder="backup">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Password</label>
+                                                <input name="password" type="Password" class="form-control" placeholder="qwerty">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                        <button type="submit" id="AddDMSSubmit" class="btn btn-primary">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- [ Modal Windows ] End -->
+                        <div class="page-wrapper">
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Host</th>
+                                                <th>Port</th>
+                                                <th>Username</th>
+                                                <th>Options</th>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in dms %}
+                                            <tr class="dms_{{ item.id }}">
+                                                <td>
+                                                    <h6 class="mb-1">{{ item.type }}</h6>
+                                                </td>
+                                                <td>
+                                                    <h6 class="mb-1">{{ item.dst_db.host }}</h6>
+                                                </td>
+                                                <td>
+                                                    <h6 class="m-b-0">{{ item.dst_db.port }}</h6>
+                                                </td>
+                                                <td>
+                                                    <h6 class="m-b-0">{{ item.dst_db.username }}</h6>
+                                                </td>
+                                                <td>
+                                                    <button type="button"  data-original-title="Edit DMS" data-toggle="modal" data-target="#editDMS" id="{{ item.id }}" class="btn btn-icon btn-outline-secondary editDMS"><i class="feather icon-edit"></i></button>
+                                                    <button type="button"  data-original-title="Delete DMS" data-toggle="modal" data-target="#deleteDMS" id="{{ item.id }}" class="btn btn-icon btn-outline-secondary deleteDMS"><i class="feather icon-trash-2"></i></button>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fixed-top m-t-10 top-button">
+    <div class="row float-right">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#AddDMS">Add DMS</button>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}
+

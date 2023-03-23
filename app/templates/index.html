@@ -1,0 +1,242 @@
+<!-- Copyright (c) 2023 Shvora Nikita, Livitsky Andrey
+This app, Ratsky Walnut, is licensed under the GNU General Public License version 3.0 (GPL 3.0).
+All source code, design, and other intellectual property rights of Ratsky Walnut, including but not limited to text, graphics, logos, images, and software, are the property of the Ratsky community and are protected by international copyright laws.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this app and associated documentation files (the "App"), to deal in the App without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the App, and to permit persons to whom the App is furnished to do so, subject to the following conditions:
+ 1 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the App.
+ 2 Any distribution of the App or derivative works must include a copy of the GPL 3.0 license.
+ 3 The App is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the App or the use or other dealings in the App.
+For more information on the GPL 3.0 license, please visit https://www.gnu.org/licenses/gpl-3.0.en.html. -->
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+<!-- [ Pre-loader ] start -->
+<!-- <div class="loader-bg">
+    <div class="loader-track">
+        <div class="loader-fill"></div>
+    </div>
+</div> -->
+<!-- [ Pre-loader ] End -->
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <!-- [ breadcrumb ] start -->
+
+                <!-- [ breadcrumb ] end -->
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <!-- [ Main Content ] start -->
+                        <div class="row">
+                            <!-- [ System stats section ] start -->
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>System status</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        <div class="row">
+                                            <div class="col-sm-6 text-center m-b-20">
+                                                <h6 class="pb-4 d-block">CPU</h6>
+                                                <div class="ball_cpu"></div>
+                                                <h4 class="font-weight-light mt-2">{{ cpu_usage }}%</h3>
+                                            </div>
+                                            <div class="col-sm-6 text-center m-b-20">
+                                                <h6 class="pb-4 d-block">RAM</h6>
+                                                <div class="ball_ram"></div>
+                                                <h4 class="font-weight-light mt-2">{{ ram_usage }}%</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ System stats section ] end -->
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Disk status</h5>
+                                    </div>
+                                    <div class="card-block">
+                                        <h6 class="text-muted d-flex align-items-center justify-content-between m-t-30">Disk size(mb)<span class="float-right f-18 text-c-green">{{ disk.0 }} / {{ disk.1 }}</span></h6>
+                                        <div class="progress mt-3">
+                                            <div class="progress-bar progress-c-theme" role="progressbar" style="width:{{ disk.2 }}%;height:6px;" aria-valuenow="{{ disk.2 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                    <div class="card-block">
+                                        <h6 class="text-muted d-flex align-items-center justify-content-between m-t-30">Disk delay(mb/sec)<span class="float-right f-18 text-c-green">{{ disk.3 }}</span></h6>
+                                        <div class="progress mt-3">
+                                            <div class="progress-bar progress-c-theme" role="progressbar" style="width:10%;height:6px;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+   
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- [Queue/worker section ] start -->
+                            <div class="col-md-6 col-xl-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Worker/Observer status</h5>
+                                    </div>
+                                    <div class="card-block border-bottom">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                {% if worker_difference >= 60 and worker_difference != 0 %}
+                                                    <i class="feather icon-zap f-60 text-c-red"></i>
+                                                {% elif worker_difference >= 30 %}
+                                                    <i class="feather icon-zap f-60 text-c-yellow"></i>
+                                                {% else %}
+                                                    <i class="feather icon-zap f-60 text-c-green"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300 text-center">{{worker_count}} / {{max_worker_count}}</h3>
+                                                <span class="d-block text-uppercase text-center">WORKER COUNT / MAX WORKER COUNT</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-block border-bottom">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                {% if shedular_difference >= 60 and shedular_difference != 0 %}
+                                                    <i class="feather icon-calendar f-60 text-c-red"></i>
+                                                {% elif shedular_difference >= 30  %}
+                                                    <i class="feather icon-calendar f-60 text-c-yellow"></i>
+                                                {% else %}
+                                                    <i class="feather icon-calendar f-60 text-c-green"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="f-w-300 text-center">{{shedular_count}} / {{max_shedular_count}}</h3>
+                                                <span class="d-block text-uppercase text-center">SHEDULAR COUNT / MAX SHEDULAR COUNT</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Queue/worker section ] end -->
+
+                            <!-- [ Jobs status section ] start -->
+                            <div class="col-xl-8 col-md-6">
+                                <div class="card">
+                                    <div class="card code-table">
+                                        <div class="card-header">
+                                            <h5>Job status</h5>
+                                        </div>
+                                        <div class="card-block pb-0">
+                                            <div class="table-responsive table-wrapper">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Job name</th>
+                                                            <th>DMS</th>
+                                                            <th>Data base</th>
+                                                            <th>Action</th>
+                                                            <th>Status</th>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for job in jobs %}
+                                                        <tr>
+                                                            <td>
+                                                                <h6 class="mb-1">{{ job.0.name }}</h6>
+                                                            </td>
+                                                            <td>
+                                                                <h6 class="mb-1">{{ job.1.type }}</h6>
+                                                            </td>
+                                                            <td>
+                                                                <h6 class="m-b-0">{{ job.0.db_name }}</h6>
+                                                            </td>
+                                                            <td>
+                                                                {% if job.0.action == "b" %}
+                                                                    <h6 class="m-b-0">Backup</h6>
+                                                                {% else %}
+                                                                    <h6 class="m-b-0">Restore</h6>
+                                                                {% endif %}
+                                                            </td>
+                                                            <td>
+                                                                {% if job.0.status == "e" %}
+                                                                    <a class="label theme-bg f-12 text-white">Enable</a>
+                                                                {% else %}
+                                                                    <a class="label theme-bg2 f-12 text-white">Disable</a>
+                                                                {% endif %}
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Jobs status section ] end -->
+
+                            <!-- [ Shcedular instance ] start -->
+                            <div class="col-xl-4 col-md-6">
+                                <!-- [ Shcedular instance ] end -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Walnut status</h5>
+                                    </div>
+                                    <div class="card-block border-bottom">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                {% if critical_error_count <= 0 %}
+                                                    <i class=" feather icon-alert-triangle f-60 text-c-green"></i>
+                                                {% else %}
+                                                    <i class=" feather icon-alert-triangle f-60 text-c-red"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="text-center f-w-300">{{ critical_error_count }}</h3>
+                                                <span class="text-center d-block text-uppercase">CRITICAL ERROR COUNT</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-block">
+                                        <div class="row d-flex align-items-center">
+                                            <div class="col-auto">
+                                                {% if queue_len <= 25 %}
+
+                                                    <i class="feather icon-chevrons-right f-60 text-c-green"></i>
+
+                                                {% elif queue_len <= 50 %}
+
+                                                    <i class="feather icon-chevrons-right f-60 text-c-yellow"></i>
+
+                                                {% else %}
+
+                                                    <i class="feather icon-chevrons-right f-60 text-c-red"></i>
+
+                                                {% endif %}
+
+                                            </div>
+                                            <div class="col">
+                                                <h3 class="text-center f-w-300">{{ queue_len }}</h3>
+                                                <span class="text-center d-block text-uppercase">JOBS IN QUEUE</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Recent Users ] end -->
+                        </div>
+                        <!-- [ Main Content ] end -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <div class="fixed-top m-t-10">
+    <div class="row float-right">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-primary " title="btn btn-primary" data-toggle="tooltip">Add job</button>
+        </div>
+    </div>
+</div> -->
+{% endblock %}

@@ -1,0 +1,201 @@
+<!-- Copyright (c) 2023 Shvora Nikita, Livitsky Andrey
+This app, Ratsky Walnut, is licensed under the GNU General Public License version 3.0 (GPL 3.0).
+All source code, design, and other intellectual property rights of Ratsky Walnut, including but not limited to text, graphics, logos, images, and software, are the property of the Ratsky community and are protected by international copyright laws.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this app and associated documentation files (the "App"), to deal in the App without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the App, and to permit persons to whom the App is furnished to do so, subject to the following conditions:
+ 1 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the App.
+ 2 Any distribution of the App or derivative works must include a copy of the GPL 3.0 license.
+ 3 The App is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the App or the use or other dealings in the App.
+For more information on the GPL 3.0 license, please visit https://www.gnu.org/licenses/gpl-3.0.en.html. -->
+{% extends "base.html" %}
+{% load filters %}
+{% load static %}
+
+{% block content %}
+<!-- [ Pre-loader ] start -->
+<!-- <div class="loader-bg">
+    <div class="loader-track">
+        <div class="loader-fill"></div>
+    </div>
+</div> -->
+<!-- [ Pre-loader ] End -->
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <div class="main-body">
+                    <!-- [ Modal Windows ] Start -->
+                    <div class="page-wrapper">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card Recent-Users">
+                                    <div class="card-header">
+                                        <h5>System status</h5>
+                                    </div>
+                                    <div class="card-block px-0 py-3">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <th class="text-left">Name</th>
+                                                    <th class="">Status</th>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="unread">
+                                                        <td class="text-left">
+                                                            <h6 class="mb-1">Rabbit</h6>
+                                                        </td>
+                                                        {% if rabbit_telnet_status == True %}
+                                                        <td class="">
+                                                            <h6 class="text-muted"><i class="fas fa-circle text-c-green f-10 m-r-15"></i> Up</h6>
+                                                        </td>
+                                                        {% else %}
+                                                        <td class="">
+                                                            <h6 class="text-muted"><i class="fas fa-circle text-c-red f-10 m-r-15"></i> {{ rabbit_telnet_status }}</h6>
+                                                        </td>
+                                                        {% endif %}
+                                                        
+                                                    </tr>
+                                                    <tr class="unread">
+                                                        <td class="text-left">
+                                                            <h6 class="mb-1">Redis</h6>
+                                                        </td>
+                                                        {% if redis_telnet_status == True %}
+                                                        <td class="">
+                                                            <h6 class="text-muted"><i class="fas fa-circle text-c-green f-10 m-r-15"></i> Up</h6>
+                                                        </td>
+                                                        {% else %}
+                                                        <td class="">
+                                                            <h6 class="text-muted"><i class="fas fa-circle text-c-red f-10 m-r-15"></i> {{ redis_telnet_status }}</h6>
+                                                        </td>
+                                                        {% endif %}
+                                                        
+                                                    </tr>
+                                                    <tr class="unread">
+                                                        <td class="text-left">
+                                                            <h6 class="mb-1">Postgres</h6>
+                                                        </td>
+                                                        {% if db_telnet_status == True %}
+                                                        <td class="">
+                                                            <h6 class="text-muted"><i class="fas fa-circle text-c-green f-10 m-r-15"></i> Up</h6>
+                                                        </td>
+                                                        {% else %}
+                                                        <td class="">
+                                                            <h6 class="text-muted"><i class="fas fa-circle text-c-red f-10 m-r-15"></i> {{ db_telnet_status }}</h6>
+                                                        </td>
+                                                        {% endif %}
+                                                        
+                                                    </tr>
+                                                    <tr class="unread">
+                                                        <td class="text-left">
+                                                            <h6 class="mb-1">Observer</h6>
+                                                        </td>
+                                                        {% if observer_proc_status == True %}
+                                                        <td class="">
+                                                            <h6 class="text-muted"><i class="fas fa-circle text-c-green f-10 m-r-15"></i> Up</h6>
+                                                        </td>
+                                                        {% else %}
+                                                        <td class="">
+                                                            <h6 class="text-muted"><i class="fas fa-circle text-c-red f-10 m-r-15"></i> {{ observer_proc_status }}</h6>
+                                                        </td>
+                                                        {% endif %}
+                                                        
+                                                    </tr>
+                                                    <tr class="unread">
+                                                        <td class="text-left">
+                                                            <h6 class="mb-1">Master</h6>
+                                                        </td>
+                                                        {% if master_proc_status == True %}
+                                                        <td class="">
+                                                            <h6 class="text-muted"><i class="fas fa-circle text-c-green f-10 m-r-15"></i> Up</h6>
+                                                        </td>
+                                                        {% else %}
+                                                        <td class="">
+                                                            <h6 class="text-muted"><i class="fas fa-circle text-c-red f-10 m-r-15"></i> {{ master_proc_status }}</h6>
+                                                        </td>
+                                                        {% endif %}
+                                                        
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- [ Queue/worker section ] end -->
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card Recent-Users">
+                                    <div class="card-header">
+                                        <h5>Worker status</h5>
+                                    </div>
+                                    <div class="card-block px-0 py-3">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <th class="text-left">Name</th>
+                                                    <th class="text-left">Timestamp</th>
+                                                    <th class="text-center">Progress</th>
+                                                    <th class="text-center">Status</th>
+                                                </thead>
+                                                <tbody>
+                                                    {% for key, value in worker_status.items %}
+                                                        <tr class="read">
+                                                            <td class="text-left">
+                                                                <h6 class="mb-1">{{ value.job_name }}</h6>
+                                                            </td>
+                                                            <td class="text-left">
+                                                                <h6 class="mb-1">{{ value.timestamp }}</h6>
+                                                            </td>
+                                                            <td class="">
+                                                                {% if value.worker_status == "pending" %}
+                                                                    <div class="progress mt-3">
+                                                                        <div class="progress-bar progress-c-theme" role="progressbar" style="width:20%;height:6px;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                    </div>
+                                                                {% elif value.worker_status == "started" %}
+                                                                    <div class="progress mt-3">
+                                                                        <div class="progress-bar progress-c-theme" role="progressbar" style="width:60%;height:6px;" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                    </div>
+                                                                {% elif value.worker_status == "success" %}
+                                                                    <div class="progress mt-3">
+                                                                        <div class="progress-bar progress-c-theme" role="progressbar" style="width:100%;height:6px;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                    </div>
+                                                                {% else %}
+                                                                <div class="progress mt-3">
+                                                                    <div class="progress-bar progress-c-theme2" role="progressbar" style="width:100%;height:6px;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                                                </div>
+                                                                {% endif %}
+                                                            </td>
+                                                            {% if value.worker_status == "error"%}
+                                                            <td class="text-center text-c-red">
+                                                                <button type="button" class="btn btn-danger sweet-error" error_text="{{ value.error_text }}" >error</button>
+                                                            </td>
+                                                            {% else %}
+                                                            <td class="text-center">
+                                                                {{ value.worker_status }}
+                                                            </td>
+                                                            {% endif %}
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- [ Queue/worker section ] end -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- <div class="fixed-top m-t-10">
+    <div class="row float-right">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#AddJob">Add job</button>
+        </div>
+    </div>
+</div> -->
+{% endblock %}
+

@@ -1,0 +1,14 @@
+[Unit]
+Description=Ratsky Walnut master - one to rule them(workers) all.
+StopWhenUnneeded=true
+BindsTo=walnut.target
+
+[Service]
+Type=simple
+ExecStart=/opt/venvs/walnut/bin/python /opt/venvs/walnut/bin/master.py
+SyslogIdentifier=walnut-master
+
+Restart=on-failure
+
+[Install]
+WantedBy=walnut.target

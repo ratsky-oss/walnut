@@ -1,0 +1,197 @@
+<!-- Copyright (c) 2023 Shvora Nikita, Livitsky Andrey
+This app, Ratsky Walnut, is licensed under the GNU General Public License version 3.0 (GPL 3.0).
+All source code, design, and other intellectual property rights of Ratsky Walnut, including but not limited to text, graphics, logos, images, and software, are the property of the Ratsky community and are protected by international copyright laws.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this app and associated documentation files (the "App"), to deal in the App without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the App, and to permit persons to whom the App is furnished to do so, subject to the following conditions:
+ 1 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the App.
+ 2 Any distribution of the App or derivative works must include a copy of the GPL 3.0 license.
+ 3 The App is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the App or the use or other dealings in the App.
+For more information on the GPL 3.0 license, please visit https://www.gnu.org/licenses/gpl-3.0.en.html. -->
+{% extends "base.html" %}
+{% load filters %}
+{% load static %}
+
+{% block content %}
+<div class="pcoded-main-container">
+    <div class="pcoded-wrapper">
+        <div class="pcoded-content">
+            <div class="pcoded-inner-content">
+                <div class="main-body">
+                    <div class="page-wrapper">
+                        <form action="/backup/search" method="get" novalidate="novalidate">
+                            <div class="row">
+                                <div class="col-md-1"></div>
+                                <div class="col-md-5">
+                                    <div class="input-group">
+                                        <select name="utc" class="custom-select" id="inputGroupSelect04">
+                                            {% if request.path == "/backup/search" %}
+                                            <option selected>{{ utc }}</option>
+                                            {% else %}
+                                            <option selected>utc</option>
+                                            {% endif %}
+                                            <option value="-1">utc -1</option>
+                                            <option value="-2">utc -2</option>
+                                            <option value="-3">utc -3</option>
+                                            <option value="-4">utc -4</option>
+                                            <option value="-5">utc -5</option>
+                                            <option value="-6">utc -6</option>
+                                            <option value="-7">utc -7</option>
+                                            <option value="-8">utc -8</option>
+                                            <option value="-9">utc -9</option>
+                                            <option value="-10">utc -10</option>
+                                            <option value="-11">utc -11</option>
+                                            <option value="-12">utc -12</option>
+                                            <option value="+1">utc +1</option>
+                                            <option value="+2">utc +2</option>
+                                            <option value="+3">utc +3</option>
+                                            <option value="+4">utc +4</option>
+                                            <option value="+5">utc +5</option>
+                                            <option value="+6">utc +6</option>
+                                            <option value="+7">utc +7</option>
+                                            <option value="+8">utc +8</option>
+                                            <option value="+9">utc +9</option>
+                                            <option value="+10">utc +10</option>
+                                            <option value="+11">utc +11</option>
+                                            <option value="+12">utc +12</option>
+                                            <option value="+12">utc +13</option>
+                                            <option value="+12">utc +14</option>
+                                        </select>
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="submit">
+                                                <i class="feather icon-corner-down-left f-20"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="input-group mb-3">
+                                        {% if request.path == "/backup/search" %}
+                                        <input name="search" type="text" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="basic-addon2" value="{{ search }}">
+                                        {% else %}
+                                        <input name="search" type="text" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="basic-addon2">
+                                        {% endif %}
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="submit"> 
+                                                <i class="feather icon-search f-20"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-1"></div>
+                            </div>
+                        </form>
+                        <div class="pcoded-wrapper">
+                            <div class="pcoded-content">
+                                <div class="pcoded-inner-content">
+                                    <div class="main-body">
+                                        <!-- [ Modal Windows ] Start -->
+                                        <div id="deleteBackup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteBackupTitle" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="deleteBackupTitle">Delete backup</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete the backup</p>
+                                                    </div>
+                                                    <div class="modal-footer deleteBackup-buttons">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="page-wrapper">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <div class="card-block">
+                                                        {% if jobs|length != 0 %}
+                                                            {% for job in jobs %}
+                                                                <div class="card">
+                                                                    <div class="card-block">
+                                                                        <div class="row align-items-center justify-content-center">
+                                                                            <div class="col">
+                                                                                <h3 class="text-c-blue">{{ job.name }}</h3>
+                                                                                {% if request.path == "/backup/search" %}
+                                                                                <h5>Last backup: {{ job.backupinfo_set.all.last.timestamp|edit_timezone:utc|date:'Y-m-d H:i:s' }}</h5>
+                                                                                {% else %}
+                                                                                <h5>Last backup: {{ job.backupinfo_set.all.last.timestamp|date:'Y-m-d H:i:s' }}</h5>
+                                                                                {% endif %}
+                                                                                
+                                                                            </div>
+                                                                            <div class="col text-right">
+                                                                                <h5>Backups count: {{ job.backupinfo_set.all|length }}</h5>
+                                                                                <i class="card-icon feather icon-chevron-down f-34 dropdown_table" id="div_{{ job.id }}"></i>
+                                                                            </div>
+                                                                            <table class="table table-hover backup-table" id="table_{{ job.id }}">
+                                                                                <thead>
+                                                                                    <tr>
+                                                                                        <th>Timestamp <i class="feather icon-filter table-filter-timestamp"></i></th> 
+                                                                                        <th>File system path</th>
+                                                                                        <th>Options</th>
+                                                                                </thead>
+                                                                                <tbody class="">
+                                                                                    {% for backup in job.backupinfo_set.all %}
+                                                                                    <tr class="backup_{{ backup.id }}">
+                                                                                        <td>
+                                                                                            {% if request.path == "/backup/search" %}
+                                                                                            <h6 class="mb-1 ">{{ backup.timestamp|edit_timezone:utc|date:'Y-m-d H:i:s' }}</h6>
+                                                                                            {% else %}
+                                                                                            <h6 class="mb-1 ">{{ backup.timestamp|date:'Y-m-d H:i:s' }}</h6>
+                                                                                            {% endif %}
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <h6 class="m-b-0">{{ backup.fs_path }}</h6>
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            {% if job.dst_db.dmsinfo_set.all.first.type == 'mssql'%}
+                                                                                                <button type="button"  data-original-title="Delete backup" data-toggle="modal" data-target="#deleteBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary deleteBackup"><i class="feather icon-trash-2"></i></button>
+                                                                                            {% else %}
+                                                                                                {% if backup.fs_path|check_file_exist %}
+                                                                                                    <a type="button"  data-original-title="Download backup" class="btn btn-icon btn-outline-secondary downloadBackup" href="{%url 'app:download_backup' backup.id%}"><i class="feather icon-download"></i></a>
+                                                                                                    <button type="button"  data-original-title="Delete backup" data-toggle="modal" data-target="#deleteBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary deleteBackup"><i class="feather icon-trash-2"></i></button>
+                                                                                                {% else %}
+                                                                                                    <button type="button"  data-original-title="Delete backup" data-toggle="modal" data-target="#deleteBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary deleteBackup"><i class="feather icon-trash-2"></i></button>
+                                                                                                {% endif %}
+                                                                                            {% endif %}
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                    {% endfor %}
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            <div class="card">
+                                                                <div class="card-block">
+                                                                    <div class="row align-items-center justify-content-center">
+                                                                        <div class="col">
+                                                                            <h3 class="text-c-red">Nothing found</h3>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </div>
+</div>
+<!-- <div class="fixed-top m-t-10">
+    <div class="row float-right">
+        <div class="col-md-12">
+            <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#AddJob">Add job</button>
+        </div>
+    </div>
+</div> -->
+{% endblock %}
+

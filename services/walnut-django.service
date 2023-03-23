@@ -1,0 +1,14 @@
+[Unit]
+Description=Ratsky Walnut Backup web application.
+StopWhenUnneeded=true
+BindsTo=walnut.target
+
+[Service]
+Type=simple
+ExecStart=/opt/venvs/walnut/bin/python /opt/venvs/walnut/bin/manage.py runserver
+SyslogIdentifier=walnut-django
+
+Restart=on-failure
+
+[Install]
+WantedBy=walnut.target

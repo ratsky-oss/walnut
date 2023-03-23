@@ -1,0 +1,14 @@
+[Unit]
+Description=Ratsky Walnut observer - main backup scheduler.
+StopWhenUnneeded=true
+BindsTo=walnut.target
+
+[Service]
+Type=simple
+ExecStart=/opt/venvs/walnut/bin/python /opt/venvs/walnut/bin/observer.py
+SyslogIdentifier=walnut-observer
+
+Restart=on-failure
+
+[Install]
+WantedBy=walnut.target

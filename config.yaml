@@ -1,0 +1,49 @@
+main:
+  backup_base_path: "/var/walnut-backups"
+  redis:
+    host: "localhost"
+    port: "6379"
+    #username: "" 
+    #password: ""
+
+  rabbitMQ:
+    host: "localhost"
+    port: "5672"
+    #username: 
+    #password: 
+    queue_name: "job_relay"
+
+  database:
+    username: "walnut"
+    password: "asjdhfjbvsu2737yf"
+    host: "localhost"
+    port: "5432"
+    db_name: walnut
+
+  django:
+    #EXAMPLE: walnut/ -> https://domain.com/walnut
+    base_url_path: "walnut/"
+    log:
+      level: "INFO"
+      path: "/var/log/walnut/django.log"
+      rotation: "50 MB"
+        
+  master:
+    max_worker: 5
+    log:
+      path: "/var/log/walnut/master.log"
+      rotation: "50 MB"
+      level: "INFO"
+
+  worker: 
+    log:
+      path: "/var/log/walnut/worker.log"
+      rotation: "50 MB"
+      level: "INFO"
+
+  observer:
+    max_apschedule_instances: 30
+    log:
+      path: "/var/log/walnut/observer.log"
+      rotation: "50 MB"
+      level: "DEBUG"

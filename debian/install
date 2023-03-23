@@ -1,0 +1,3 @@
+config.yaml etc/walnut
+tmp/* tmp/walnut
+services/* usr/lib/systemd/system

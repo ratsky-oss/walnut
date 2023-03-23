@@ -1,0 +1,3 @@
+recursive-include app/templates *
+recursive-include app/static *
+recursive-include app/templatetags *

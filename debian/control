@@ -1,0 +1,12 @@
+Source: walnut
+Section: python
+Priority: extra
+Maintainer: Ratsky
+Build-Depends: debhelper (>= 9), python3, virtualenv, dh-virtualenv (>= 0.8)
+Standards-Version: 3.9.5
+
+Package: walnut
+Architecture: any
+Depends: dpkg (>= 1.16.1), python3 (>= 3.8), ${misc:Pre-Depends}, gcc(>= 9.4.0), libpq-dev(>= 12.14), postgresql(>= 12), redis(>= 5.0), rabbitmq-server(>= 3.8), mariadb-client(>= 10.0), postgresql-client(>= 12), libmariadb3(>= 10.3.22), libmariadb-dev(>=10.3.22), python3-distutils(>= 3.8), freetds-dev (>= 1.1), tdsodbc(>= 1.1), unixodbc(>=2.3.6), odbcinst(>=2.3.6), nginx(>=1.17)
+Description: Ratsky Walnut Backup.
+    Simple Backup web-Utility to manage your sheduled sql backups.

@@ -1,0 +1,16 @@
+[Unit]
+Description=Hello there, it's Ratsky Walnut Backup.
+
+Wants=postgres.service
+Wants=rabbitmq-server.service
+Wants=nginx.service
+Wants=redis-server.service
+
+Requires=multi-user.target
+Requires=network-online.target
+
+Requires=walnut-master.service
+Requires=walnut-observer.service
+Requires=walnut-django.service
+
+AllowIsolate=yes

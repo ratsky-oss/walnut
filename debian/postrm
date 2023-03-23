@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#DEBHELPER#
+set -e
+
+remove_migrations() {
+    echo "----------------------"
+    echo "| DIRECTORY CLEANUP  |"
+    echo "----------------------"
+    rm -rf /opt/venvs/walnut/ || true
+}
+remove_db() {
+    echo "----------------------"
+    echo "| DATABASE CLEANUP   |"
+    echo "----------------------"
+    su postgres -c "psql -c \"DROP DATABASE walnut;\"" || true
+    su postgres -c "psql -c \"DROP USER walnut;\"" || true
+}
+remove_db() {
+    echo "----------------------"
+    echo "| REDIS CLEANUP      |"
+    echo "----------------------"
+    redis-cli -n 0 FLUSHDB || true
+    redis-cli -n 1 FLUSHDB || true
+    redis-cli ACL DELUSER walnut || true
+}
+
+clear_rabbit() {
+        echo "----------------------"
+        echo "| CLEAR RABBIT      |"
+        echo "----------------------"
+        rabbitmqctl delete_user walnut || true
+}
+case $1 in
+    purge)
+        remove_migrations
+        remove_db
+    ;;
+    *)
+    ;;
+esac
+
+exit 0

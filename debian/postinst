@@ -1,0 +1,140 @@
+#!/bin/bash
+
+#DEBHELPER#
+set -e
+
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+cert() {
+        echo "----------------------"
+        echo "| SSL SETUP          |"
+        echo "----------------------"
+        mkdir -p /etc/nginx/certs/
+        echo "===============================================================================";
+        echo "Generating private key";
+        openssl genrsa -out /etc/nginx/certs/private.key 4096
+        echo -e "\nDone";
+        echo "===============================================================================";
+        echo "Generating request";
+        echo -e "\n\n\n\n\n\n\n" | openssl req -new -config /tmp/walnut/req.cfg -key /etc/nginx/certs/private.key -out /tmp/walnut/certreq.csr -sha256
+        echo -e "\nDone";
+        echo -e "\n";
+        echo "===============================================================================";
+        echo "Generating self-signed certificate";
+        openssl x509 -signkey /etc/nginx/certs/private.key -in /tmp/walnut/certreq.csr -req -days 3650 -out /etc/nginx/certs/cert.cer
+        echo -e "\nDone";
+        echo "===============================================================================";
+                        
+}
+
+nginx_config() {
+        echo "----------------------"
+        echo "| NGINX CONF         |"
+        echo "----------------------"
+        if cp -u /tmp/walnut/nginx.conf /etc/nginx/sites-available/walnut.conf; then
+                ln -s /etc/nginx/sites-available/walnut.conf /etc/nginx/sites-enabled/ || true
+        else
+                cp -u /tmp/walnut/nginx.conf /etc/nginx/conf.d/walnut.conf
+        fi
+        if nginx -t; then
+                systemctl reload nginx
+        else
+                echo -e "{$RED}SOMETHING WENT WRONG CHECK YOUR NGINX CONFIGURATION FILES{$NC} \n";
+        fi
+}
+
+add_trigger() {
+        echo "----------------------"
+        echo "| CREATING TRIGGER   |"
+        echo "----------------------"
+        su postgres -c "psql -d walnut < /tmp/walnut/db_init/notify_trigger.sql"
+        su postgres -c "psql -d walnut < /tmp/walnut/db_init/register_trigger.sql" || true
+}
+
+test_init() {
+        echo "----------------------"
+        echo "| TEST INIT          |"
+        echo "----------------------"
+        su postgres -c "psql -d walnut < /tmp/walnut/db_init/test_init.sql"
+}
+setup_database() {
+        echo "----------------------"
+        echo "| DB SETUP           |"
+        echo "----------------------"
+        su -c "psql -c \"CREATE USER walnut WITH ENCRYPTED PASSWORD 'asjdhfjbvsu2737yf'\"" postgres || true
+        su -c "psql -c \"CREATE DATABASE walnut\"" postgres || true
+        su -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE walnut TO walnut\"" postgres || true
+}
+
+migrate() {
+        echo "----------------------"
+        echo "| DB INIT            |"
+        echo "----------------------"
+        . /opt/venvs/walnut/bin/activate 
+        manage.py makemigrations
+        manage.py migrate
+        echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | manage.py shell || true
+        sec.py
+}
+
+configuring_redis() {
+        echo "----------------------"
+        echo "| CONFIGURING REDIS   |"
+        echo "----------------------"
+        echo "ACL SETUSER walnut on >asjdhfjbvsu2737yf +@all ~*" | redis-cli
+}
+
+configuring_rabbit() {
+        echo "----------------------"
+        echo "| CONFIGURING RABBIT      |"
+        echo "----------------------"
+        rabbitmqctl add_user walnut asjdhfjbvsu2737yf || true
+        rabbitmqctl set_permissions -p / walnut "." "." ".*"
+}
+
+tmp_cleanup(){
+        echo "----------------------"
+        echo "| CLEANUP            |"
+        echo "----------------------"
+        rm -rf /tmp/walnut/*
+}
+
+collect_static() {
+        echo "----------------------"
+        echo "| COLLECT STATIC      |"
+        echo "----------------------"
+        . /opt/venvs/walnut/bin/activate 
+        manage.py collectstatic --no-input
+}
+
+configure(){
+        setup_database
+        add_trigger
+        migrate
+        configuring_redis
+        configuring_rabbit        
+        cert
+        collect_static
+        nginx_config
+        freetds_setup
+}
+
+freetds_setup(){
+        odbcinst -i -d -f /usr/share/tdsodbc/odbcinst.ini
+}
+
+configure
+tmp_cleanup
+
+echo "----------------------"
+echo "| SERVICE SETUP      |"
+echo "----------------------"
+systemctl daemon-reload
+systemctl start walnut.target
+
+systemctl enable walnut-observer.service
+systemctl enable walnut-django.service
+systemctl enable walnut-master.service
+
+exit 0

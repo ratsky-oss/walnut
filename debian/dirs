@@ -1,0 +1,5 @@
+/var/log/walnut
+/etc/walnut
+/var/walnut-backups
+/tmp/walnut
+/var/www/walnut/static

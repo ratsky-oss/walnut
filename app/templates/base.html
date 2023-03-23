@@ -1,0 +1,223 @@
+<!-- Copyright (c) 2023 Shvora Nikita, Livitsky Andrey
+This app, Ratsky Walnut, is licensed under the GNU General Public License version 3.0 (GPL 3.0).
+All source code, design, and other intellectual property rights of Ratsky Walnut, including but not limited to text, graphics, logos, images, and software, are the property of the Ratsky community and are protected by international copyright laws.
+Permission is hereby granted, free of charge, to any person obtaining a copy of this app and associated documentation files (the "App"), to deal in the App without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the App, and to permit persons to whom the App is furnished to do so, subject to the following conditions:
+ 1 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the App.
+ 2 Any distribution of the App or derivative works must include a copy of the GPL 3.0 license.
+ 3 The App is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the App or the use or other dealings in the App.
+For more information on the GPL 3.0 license, please visit https://www.gnu.org/licenses/gpl-3.0.en.html. -->
+{% load static %}
+{% load filters %}
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+        <title>Walnut | Main</title>
+        <!-- HTML5 Shim and Respond.js IE11 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 11]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+            <![endif]-->
+        <!-- Meta -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="Datta Able Bootstrap admin template made using Bootstrap 4 and it has huge amount of ready made feature, UI components, pages which completely fulfills any dashboard needs."/>
+        <meta name="keywords" content="admin templates, bootstrap admin templates, bootstrap 4, dashboard, dashboard templets, sass admin templets, html admin templates, responsive, bootstrap admin templates free download,premium bootstrap admin templates, datta able, datta able bootstrap admin template">
+        <meta name="author" content="Codedthemes" />
+    
+        <!-- Favicon icon -->
+        <link rel="icon" href="{% static 'images/logo.ico' %}" type="image/x-icon">
+        <!-- fontawesome icon -->
+        <link rel="stylesheet" href="{% static 'fonts/fontawesome/css/fontawesome-all.min.css' %}">
+        <!-- animation css -->
+        <link rel="stylesheet" href="{% static 'plugins/animation/css/animate.min.css' %}">
+        <!-- notification css -->
+        <link rel="stylesheet" href="{% static 'plugins/notification/css/notification.min.css' %}">
+        <!-- vendor css -->
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <!-- <link rel="stylesheet" href="assets/css/layouts/dark.css"> -->
+        <link rel="stylesheet" href="{% static 'plugins/data-tables/css/datatables.min.css' %}">
+        
+    
+    </head>
+    <body>
+        <!-- [ navigation menu ] start -->
+        <nav class="pcoded-navbar">
+            <div class="navbar-wrapper">
+                <div class="navbar-brand header-logo">
+                    <a href="{% url 'app:Main_page' %}" class="b-brand">
+                        <img class="b-bg" src="{% static 'images/logotype-01.svg' %}" alt="">
+                    </a>
+                    <a class="mobile-menu" id="mobile-collapse" href="#!"><span></span>
+                    </a>
+                </div>
+                <div class="navbar-content scroll-div">
+                    <ul class="nav pcoded-inner-navbar">
+                        <li class="nav-item pcoded-menu-caption">
+                            <label>Navigation</label>
+                        </li>
+                        {% if request.path == base_url_path %}
+                        <li data-username="Animations" class="nav-item pcoded-trigger"><a href="{% url 'app:Main_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-sidebar"></i></span><span class="pcoded-mtext">Dashboard</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Jobs_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-calendar"></i></span><span class="pcoded-mtext">Jobs</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:DMS_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-aperture"></i></span><span class="pcoded-mtext">DMS</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Backup_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-disc"></i></span><span class="pcoded-mtext">Backup</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Status_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-activity"></i></span><span class="pcoded-mtext">System status</span></a></li>
+                        {% elif request.path == base_url_path|concat_string:"jobs" %}
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Main_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-sidebar"></i></span><span class="pcoded-mtext">Dashboard</span></a></li>
+                        <li data-username="Animations" class="nav-item pcoded-trigger"><a href="{% url 'app:Jobs_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-calendar"></i></span><span class="pcoded-mtext">Jobs</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:DMS_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-aperture"></i></span><span class="pcoded-mtext">DMS</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Backup_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-disc"></i></span><span class="pcoded-mtext">Backup</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Status_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-activity"></i></span><span class="pcoded-mtext">System status</span></a></li>
+                        {% elif request.path == base_url_path|concat_string:"dms" %}
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Main_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-sidebar"></i></span><span class="pcoded-mtext">Dashboard</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Jobs_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-calendar"></i></span><span class="pcoded-mtext">Jobs</span></a></li>
+                        <li data-username="Animations" class="nav-item pcoded-trigger"><a href="{% url 'app:DMS_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-aperture"></i></span><span class="pcoded-mtext">DMS</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Backup_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-disc"></i></span><span class="pcoded-mtext">Backup</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Status_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-activity"></i></span><span class="pcoded-mtext">System status</span></a></li>
+                        {% elif request.path == base_url_path|concat_string:"status" %}
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Main_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-sidebar"></i></span><span class="pcoded-mtext">Dashboard</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Jobs_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-calendar"></i></span><span class="pcoded-mtext">Jobs</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:DMS_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-aperture"></i></span><span class="pcoded-mtext">DMS</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Backup_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-disc"></i></span><span class="pcoded-mtext">Backup</span></a></li>
+                        <li data-username="Animations" class="nav-item pcoded-trigger"><a href="{% url 'app:Status_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-activity"></i></span><span class="pcoded-mtext">System status</span></a></li>
+                        {% else %}
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Main_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-sidebar"></i></span><span class="pcoded-mtext">Dashboard</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Jobs_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-calendar"></i></span><span class="pcoded-mtext">Jobs</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:DMS_page'  %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-aperture"></i></span><span class="pcoded-mtext">DMS</span></a></li>
+                        <li data-username="Animations" class="nav-item pcoded-trigger"><a href="{% url 'app:Backup_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-disc"></i></span><span class="pcoded-mtext">Backup</span></a></li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:Status_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-activity"></i></span><span class="pcoded-mtext">System status</span></a></li>
+                        {% endif %}
+                        <li data-username="Animations" class="nav-item pcoded-hasmenu">
+                            <a href="#!" class="nav-link"><span class="pcoded-micon"><i class="feather icon-settings"></i></span><span class="pcoded-mtext">Settings</span></a>
+                            
+                            <ul class="pcoded-submenu">
+                                {% if request.path == base_url_path|concat_string:"settings/config" %}
+                                <!-- <li class="active"><a href="{% url 'app:config_page' %}" class="">Config</a></li> -->
+                                <li class=""><a href="{% url 'app:users_page' %}" class="">Users</a></li>
+                                {% elif request.path == base_url_path|concat_string:"settings/users" %}
+                                <!-- <li class=""><a href="{% url 'app:config_page' %}" class="">Config</a></li> -->
+                                <li class="active"><a href="{% url 'app:users_page' %}" class="">Users</a></li>
+                                {% else %}
+                                <!-- <li class=""><a href="{% url 'app:config_page' %}" class="">Config</a></li> -->
+                                <li class=""><a href="{% url 'app:users_page' %}" class="">Users</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        <li data-username="Animations" class="nav-item"><a href="{% url 'app:logout_page' %}" class="nav-link"><span class="pcoded-micon"><i class="feather icon-log-out"></i></span><span class="pcoded-mtext">Logout</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- [ navigation menu ] end -->
+		<!-- [ Header ] start -->
+        <header class="navbar pcoded-header navbar-expand-lg navbar-light">
+            <div class="m-header">
+                <a class="mobile-menu" id="mobile-collapse1" href="#!"><span></span></a>
+                <a href="{% url 'app:Main_page' %}" class="b-brand">
+                    <div class="b-bg">
+                        <i class="feather icon-trending-up"></i>
+                    </div>
+                    <span class="b-title">Ratsky.Walnut</span>
+                </a>
+            </div>
+        </header>
+        <!-- [ Header ] end -->
+        {% block content %}
+		{% endblock %}
+		<footer class="no-user-select">
+            <p class="fixed-button text-center" style="margin-left: 15%;"> Ratsky Walnut  Copyright © 2023  Shvora Nikita, Livitsky Andrey</p>
+		</footer>
+        
+
+        <!-- notification Js -->
+        <!-- <script src="{% static 'plugins/notification/js/bootstrap-growl.min.js' %}"></script> -->
+    
+        <!-- dashboard-custom js -->
+        <!-- <script src="{% static 'js/pages/dashboard-custom.js' %}"></script> -->
+
+        <!-- Required Js -->
+        <script src="{% static 'js/vendor-all.min.js' %}"></script>
+        <script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'js/pcoded.min.js' %}"></script>
+        
+
+        <!-- amchart js -->
+        <script src="{% static 'plugins/amchart/js/amcharts.js' %}"></script>
+        <script src="{% static 'plugins/amchart/js/gauge.js' %}"></script>
+        <script src="{% static 'plugins/amchart/js/serial.js' %}"></script>
+        <script src="{% static 'plugins/amchart/js/light.js' %}"></script>
+        <script src="{% static 'plugins/amchart/js/pie.min.js' %}"></script>
+        <script src="{% static 'plugins/amchart/js/ammap.min.js' %}"></script>
+        <script src="{% static 'plugins/amchart/js/usaLow.js' %}"></script>
+        <script src="{% static 'plugins/amchart/js/radar.js' %}"></script>
+        <script src="{% static 'plugins/amchart/js/worldLow.js' %}"></script>
+
+        <!-- Float Chart js -->
+        <script src="{% static 'plugins/flot/js/jquery.flot.js' %}"></script>
+        <script src="{% static 'plugins/flot/js/jquery.flot.categories.js' %}"></script>
+        <script src="{% static 'plugins/flot/js/curvedLines.js' %}"></script>
+        <script src="{% static 'plugins/flot/js/jquery.flot.tooltip.min.js' %}"></script>
+
+        <!-- WaterBall js -->
+        <script src="{% static 'plugins/waterball/js/createWaterBall-jquery.js' %}"></script>
+
+        <!-- chart js -->
+        <!-- <script src="{% static 'js/pages/chart.js' %}"></script> -->
+        <script src="{% static 'plugins/chart-chartjs/js/Chart.min.js' %}"></script>
+        <script src="{% static 'js/pages/chart-chart-custom.js' %}"></script>
+
+        <script src="{% static 'plugins/data-tables/js/datatables.min.js' %}"></script>
+        <script src="{% static 'js/pages/tbl-datatable-custom.js' %}"></script>
+        <script src="{% static 'js/main.js' %}"></script>
+        <script src="{% static 'js/create-modal.js' %}"></script>
+        <script src="{% static 'plugins/notification/js/bootstrap-growl.min.js' %}"></script>
+        <script src="{% static 'plugins/data-tables/js/datatables.min.js' %}"></script>
+        <script src="{% static 'js/pages/tbl-datatable-custom.js' %}"></script>
+        <script src="{% static 'plugins/sweetalert/js/sweetalert.min.js' %}"></script>
+        <script src="{% static 'js/pages/ac-alert.js' %}"></script>
+        
+        {% if request.path == base_url_path %}
+            {% block javascript %}
+            <script>
+                // [ sadball & happyball chart ] start
+                var loadingEle = $('.loading');
+                $('.ball_cpu').createWaterBall({
+                    cvs_config: {
+                        width: 110,
+                        height: 110
+                    },
+                    wave_config: {
+                        waveWidth: 0.025,
+                        waveHeight: 3
+                    },
+                    data_range: [30, 70, 100],
+                    isLoading: true,
+                    nowRange: {{ cpu_usage }},
+                    targetRange: {{ cpu_usage }}
+                });
+                $('.ball_ram').createWaterBall({
+                    cvs_config: {
+                        width: 110,
+                        height: 110
+                    },
+                    wave_config: {
+                        waveWidth: 0.025,
+                        waveHeight: 3
+                    },
+                    data_range: [30, 70, 100],
+                    isLoading: true,
+                    nowRange: {{ ram_usage }},
+                    targetRange: {{ ram_usage }}
+                });
+                setTimeout(function() {
+                    $('.ball_cpu').createWaterBall('updateRange', {{ cpu_usage }});
+                    $('.ball_ram').createWaterBall('updateRange', {{ ram_usage }});
+                }, 1000);
+            </script>
+            {% endblock %}
+        {% else %}
+        {% endif %}
+    </body>
+    
+</html>
