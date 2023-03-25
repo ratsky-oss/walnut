@@ -13,17 +13,10 @@ class RedisHandler:
         except Exception as e:
             logger.error(f'[REDIS] {e}')
 
-    def send_info_to_redis(self, db_number, key, job_name, status, timestamp, db_name, db_host):
-        worker_info = {
-            "job_name": job_name,
-            "worker_status": status,
-            "timestamp": timestamp,
-            "db_name": db_name,
-            "db_host": db_host
-        }
+    def send_info_to_redis(self, db_number, key, message):
         try:
             self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
-            self.redis_connection.hmset(key, worker_info)
+            self.redis_connection.hmset(key, message)
         except Exception as e:
             logger.error(f'[REDIS] {e}')
 
@@ -38,5 +31,14 @@ class RedisHandler:
             key = len(self.redis_connection.keys()) + 1
             self.redis_connection.hmset(key, error_info)
             self.redis_connection.expire(key, timedelta(days=1))
+        except Exception as e:
+            logger.error(f'[REDIS] {e}')
+
+    def del_all_keys_into_redis(self, db_number):
+        try:
+            self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
+            for key in self.redis_connection.keys("*"):
+                self.del_info_into_redis(db_number, key)
+            logger.info(f"[REDIS] Clear redis db {db_number}")
         except Exception as e:
             logger.error(f'[REDIS] {e}')
