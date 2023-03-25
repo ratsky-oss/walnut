@@ -3,7 +3,7 @@
     - walnut
     - build-stand
   only: 
-    - main
+    - dev
 
 
 stages:
