@@ -30,7 +30,7 @@ The **Ratsky Walnut** is a tool for **automatization and management of the backu
 
 The tool supports a wide range of SQL database platforms, including **MySQL**, **MariaDB**, **PostgreSQL**, and **Microsoft SQL Server**. 
 
-The main goal of the project is transforming your backup routine to a pleasant experience. Project was inspired via [GoBackup](https://github.com/gobackup/gobackup) and rely on default backuping mechanisms such as the pg_dump and mysqldump utilities.
+The main goal of the project is transforming your backup routine to a pleasant experience. Project was inspired via [backup/backup project](https://github.com/backup/backup) and rely on default backuping mechanisms such as the pg_dump and mysqldump utilities.
 
 ### MSSQL
   <img src="docs/workflow-mssql.jpg" width="600" />
