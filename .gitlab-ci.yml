@@ -4,6 +4,7 @@
     - build-stand
   only: 
     - dev
+    - master
 
 
 stages:
