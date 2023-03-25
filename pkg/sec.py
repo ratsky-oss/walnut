@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Copyright (c) 2023 Shvora Nikita, Livitsky Andrey
 # This app, Ratsky Walnut, is licensed under the GNU General Public License version 3.0 (GPL 3.0).
 # All source code, design, and other intellectual property rights of Ratsky Walnut, including but not limited to text, graphics, logos, images, and software, are the property of the Ratsky community and are protected by international copyright laws.
@@ -7,7 +9,6 @@
 #  3 The App is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the App or the use or other dealings in the App.
 # For more information on the GPL 3.0 license, please visit https://www.gnu.org/licenses/gpl-3.0.en.html.
 
-#!/usr/bin/env python
 import os
 from cryptography.fernet import Fernet
 import yaml
