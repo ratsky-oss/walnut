@@ -143,8 +143,8 @@ You may skip [settings reference](#settings-reference) section and go right to [
       - **rotation** - rotation size
     - **max_apschedule_instances** - max scheduled jobs allowed
   - **rabbitMQ** - the application internal queue settings
-    - **host** - a hostname with RMQ 
-    - **port** - a port to access RMQ
+    - **host** - the RMQ hostname/address
+    - **port** - the RMQ port
     - **queue_name** - the name of queue to use
   - **redis** - application internal queue settings
     - **host** - redis database hostname/address
@@ -305,7 +305,7 @@ password: admin
 
 Ratsky Walnut allows you to set up various backup flows.
 <br>
-Main concept of manipulating your backup strategy is two profiles.
+Main concept of manipulating your backup strategy includes two profiles.
 - DMS profile - the profile describing how to connect to specified DMS
 - Job profile - the profile describing backup parameters
 
