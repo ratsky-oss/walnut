@@ -101,11 +101,11 @@ The main goal of the project is transforming your backup routine to a pleasant e
 To install Ratsky Walnut backup utility:
 - Download deb package
     ```
-    wget ...
+    wget https://ra-sky.github.io/walnut/walnut_0.1_amd64.deb
     ```
 - Install 
     ```
-    sudo apt install -y ./{package}.deb
+    sudo apt install -y ./walnut_0.1_amd64.deb
     ```
 
 ## Configuration
