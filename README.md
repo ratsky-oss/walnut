@@ -1,4 +1,4 @@
-# Ratsky Walnut
+# Ratskt Walnut Backup
 
 <!-- ![alt text](docs/logo_gradient_square.svg "containers"){:height="100px" width="100px"} -->
 <img src="docs/logo_gradient_square.svg" alt="alt text" width="300" height="300">
@@ -98,7 +98,7 @@ The main goal of the project is to transform your backup routine to a pleasant e
 
 # Installation
 
-To install Ratsky Walnut backup utility:
+To install Ratsky Walnut Backup utility:
 - Download deb package
     ```
     wget https://ra-sky.github.io/walnut/walnut_0.1_amd64.deb
