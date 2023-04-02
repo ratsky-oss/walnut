@@ -77,9 +77,9 @@ $(document).ready(function(){
                     var hashtagDiv = $(".hashtag_div");
                     hashtagDiv.empty();
                     hashtagDiv.append("<span>Databases:</span>")
-                    hashtagDiv.append("<span class='hashtags'>all</span>")
+                    hashtagDiv.append("<span class='btn btn-primary hashtags'>all</span>")
                     for (var i = 0; i < result.databases.length; i++) {
-                        var newSpan = $("<span class='hashtags'>" + result.databases[i] + "</span>");
+                        var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
                         hashtagDiv.append(newSpan);
                     }
                     $('input[data-role="tagsinput"]').tagsinput();
@@ -218,9 +218,11 @@ $(document).ready(function(){
             },
             contentType: 'application/json;charset=UTF-8', // post data || get data
             success : function(result) {
+                var input = $('input[data-role="tagsinput"]');
                 $('.editJobinput[name=dst_db]').val(result.dst_db);
                 $('.editJobinput[name=name]').val(result.name);
-                $('.editJobinput[name=db_name]').val(result.db_name);
+                input.tagsinput('removeAll');
+                input.tagsinput('add', result.db_name);
                 $('.editJobinput[name=rotation]').val(result.rotation);
                 $('.editJobinput[name=frequency]').val(result.frequency);
                 if ($('.DMSChecker').val().split('/')[0] === 'mssql') {
@@ -253,9 +255,9 @@ $(document).ready(function(){
                     var hashtagDiv = $(".hashtag_div");
                     hashtagDiv.empty();
                     hashtagDiv.append("<span>Databases:</span>")
-                    hashtagDiv.append("<span class='hashtags'>all</span>")
+                    hashtagDiv.append("<span class='btn btn-primary hashtags'>all</span>")
                     for (var i = 0; i < result.databases.length; i++) {
-                        var newSpan = $("<span class='hashtags'>" + result.databases[i] + "</span>");
+                        var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
                         hashtagDiv.append(newSpan);
                     }
                     $('input[data-role="tagsinput"]').tagsinput();
