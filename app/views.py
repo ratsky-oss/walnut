@@ -371,12 +371,11 @@ class Logout_Page_View(BaseContextMixin, TemplateView ):
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
-        
         return context
     
     def dispatch(self, request, *args, **kwargs):
         logout(request)
-        return redirect('/login')
+        return redirect(reverse('app:login_page'))
 
 def get_form_add_dms(request):
     if request.method == 'POST':
