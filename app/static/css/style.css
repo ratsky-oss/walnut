@@ -7381,7 +7381,7 @@ select.form-control-lg:not([size]):not([multiple]) {
   color: #ffffff;
 }
 .label.label-info {
-  background: #3ebfea;
+  background: #04a9f5;
   color: #ffffff;
 }
 
@@ -10572,12 +10572,9 @@ div.code-toolbar > .toolbar span:hover {
 .hashtags{
   cursor: pointer;
   padding: 0% 2px 0% 2px;
+  margin: 0 5px 0 5px;
 }
 
-.hashtags:hover {
-  color: blue;
-  text-decoration: underline;
-}
 
 @-webkit-keyframes passing-through {
   0% {

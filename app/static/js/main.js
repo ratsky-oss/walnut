@@ -304,9 +304,9 @@ $(document).ready(function(){
                     var hashtagDiv = $(".hashtag_div");
                     hashtagDiv.empty();
                     hashtagDiv.append("<span>Databases:</span>")
-                    hashtagDiv.append("<span class='hashtags'>all</span>")
+                    hashtagDiv.append("<span class='hashtags btn btn-primary hashtags'>all</span>")
                     for (var i = 0; i < result.databases.length; i++) {
-                        var newSpan = $("<span class='hashtags'>" + result.databases[i] + "</span>");
+                        var newSpan = $("<span class='hashtags btn btn-primary hashtags'>" + result.databases[i] + "</span>");
                         hashtagDiv.append(newSpan);
                     }
                     $('input[data-role="tagsinput"]').tagsinput();
