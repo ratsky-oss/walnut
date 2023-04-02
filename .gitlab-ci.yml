@@ -1,6 +1,12 @@
 include:
   - template: Code-Quality.gitlab-ci.yml
 
+code_quality:
+  services:            # Shut off Docker-in-Docker
+  tags:
+    - docker
+    - walnut
+
 .main-stand: &main-stand
   tags:
     - walnut
