@@ -110,8 +110,8 @@ collect_static() {
 
 configure(){
         setup_database
-        add_trigger
         migrate
+        add_trigger
         configuring_redis
         configuring_rabbit        
         cert
