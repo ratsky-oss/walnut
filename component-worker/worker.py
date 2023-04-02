@@ -45,13 +45,13 @@ def back_up(worker_name, engine):
     db_name = db_info["connection"]["db_name"]
     name = db_info["job"]["name"]
     full_path = f'{conf.backup_base_path}/{name}/{dms_type}_{db_name}_{datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")}.gz'
-    redis_handler.send_info_to_redis(0, worker_name, {"job_name": name, "worker_status": "pending","timestamp": str(datetime.datetime.now()),"db_name": db_name,"db_host": db_host})
+    redis_handler.send_info_to_redis(conf.redis_worker_database, worker_name, {"job_name": name, "worker_status": "pending","timestamp": str(datetime.datetime.now()),"db_name": db_name,"db_host": db_host})
     if not check_path_in_backupinfo(engine, full_path):# and check_path_in_filesystem()
         if not(os.path.exists(f'{conf.backup_base_path}/{name}')):
             os.mkdir(f'{conf.backup_base_path}/{name}')
         logger.info(f'[{worker_name}] start backuping {db_name} from {db_host}')
         logger.debug(f'[{worker_name}] start backuping {dms_type}')
-        redis_handler.send_info_to_redis(0, worker_name, {"job_name": name, "worker_status": "started","timestamp": str(datetime.datetime.now()),"db_name": db_name,"db_host": db_host})
+        redis_handler.send_info_to_redis(conf.redis_worker_database, worker_name, {"job_name": name, "worker_status": "started","timestamp": str(datetime.datetime.now()),"db_name": db_name,"db_host": db_host})
         if dms_type == "mysql":
             mysql = MYSQL(db_name, db_host, db_port, db_username, db_password)
             if db_name == "all":
@@ -67,7 +67,7 @@ def back_up(worker_name, engine):
             mssql = MSSQL(db_name = db_name, db_host = db_host, db_port = db_port, db_username = db_username, db_password = db_password, remote_path = remote_path)
             mssql.backup(engine, conf, worker_name, name)    
     else:
-        redis_handler.del_info_into_redis(0, worker_name)
+        redis_handler.del_info_into_redis(conf.redis_worker_database, worker_name)
         logger.error(f"[{worker_name}] Not started, backup exists")
     
 if __name__ == "__main__":
