@@ -80,11 +80,11 @@ The main goal of the project is transforming your backup routine to a pleasant e
 
 - Download the deb package
     ```
-    wget https://ra-sky.github.io/walnut/walnut_0.1_amd64.deb
+    wget https://ra-sky.github.io/walnut/walnut_0.1-3.deb
     ```
 - Install 
     ```
-    sudo apt install -y ./walnut_0.1_amd64.deb
+    sudo apt install -y ./walnut_0.1-3.deb
     ```
 - Go to **https://{your_ip_address}/walnut/**
 - Accept the self-signed certificate
@@ -97,16 +97,18 @@ The main goal of the project is transforming your backup routine to a pleasant e
 
 
 # Installation
-
+https://ra-sky.github.io/walnut
 To install Ratsky Walnut backup utility:
-- Download deb package
+- [Choose version](https://ra-sky.github.io/walnut/)
+- Download deb package 
     ```
-    wget https://ra-sky.github.io/walnut/walnut_0.1_amd64.deb
+    wget https://ra-sky.github.io/walnut/walnut_{version}.deb
     ```
 - Install 
     ```
-    sudo apt install -y ./walnut_0.1_amd64.deb
+    sudo apt install -y ./walnut_{version}.deb
     ```
+
 
 ## Configuration
 
