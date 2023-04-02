@@ -1,3 +1,6 @@
+include:
+  - template: Code-Quality.gitlab-ci.yml
+
 .main-stand: &main-stand
   tags:
     - walnut
@@ -22,6 +25,7 @@ stages:
   - build
   - deploy
   - healthcheck
+  - test
 
 build-deb-package:
   <<: *package-builder
