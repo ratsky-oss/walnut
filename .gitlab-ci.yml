@@ -6,22 +6,34 @@
     - dev
     - master
 
+.package-builder: &package-builder
+  tags:
+    - ssh-docker
+    - walnut
+
 
 stages:
+  - ci-debug
   - build
 #   - test
   - deploy
   - healthcheck
 
 build-deb-package:
-  <<: *main-stand
-  stage: build
+  <<: *package-builder
+  stage: ci-debug
   script:
-        - dpkg-buildpackage -us -uc -b
-        - mv ../*.deb ./
-  artifacts:
-    paths:
-        - ./*.deb
+    - ls -la
+
+# build-deb-package:
+#   <<: *main-stand
+#   stage: build
+#   script:
+#         - dpkg-buildpackage -us -uc -b
+#         - mv ../*.deb ./
+#   artifacts:
+#     paths:
+#         - ./*.deb
 
 pre-deploy:
   <<: *main-stand
