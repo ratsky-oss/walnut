@@ -29,15 +29,13 @@ import json
 import os
 import re
 
-from .functions import get_queue_len
+from .functions import get_redis_len, get_queue_len
 from pkg.config import Config, MasterConfig, WorkerConfig, ObserverConfig, DjangoConfig
 from pkg.db_connection import check_dst_db
 from pkg.sql_lib import MSSQL, PGSQL, MYSQL
 from pkg.sec import Cryptorator
 from app.models import DestinationDatabase, DMSInfo, Job, BackupInfo
 from pkg.status_lib import check_connection_telnet, process_running,  worker_status, worker_error
-from pkg.redis_lib import RedisHandler
-
 
 logger = logging.getLogger(__name__)
 #logger.debug('Log whatever you want')
@@ -88,19 +86,8 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
         conf_observer = ObserverConfig()
         context = super().get_context_data(**kwargs)
         jobs = Job.objects.all()
-
         redis_connect = redis.StrictRedis.from_url(conf.redis_url, decode_responses=True, db=0)
-        redis_connect_error = redis.StrictRedis.from_url(conf.redis_url + "/1", decode_responses=True)
-        try:
-            worker_status_bufer =  worker_status(redis_connect)
-            worker_error_bufer = worker_error(redis_connect_error)
-            context["worker_status"] =  copy.deepcopy(worker_status_bufer)
-            for key,value in worker_status_bufer.items():
-                if value["worker_status"] == "error":
-                    context["worker_status"][key]["error_text"] = worker_error_bufer[value["job_name"]]["error_text"]
-        except  Exception as e:
-            context["worker_status"] = {}
-            
+
         try:
             context['disk'] = [ humanize.intcomma(int(psutil.disk_usage(worker_config.backup_base_path).free/(1024*1024))), 
                             humanize.intcomma(int(psutil.disk_usage(worker_config.backup_base_path).total/(1024*1024))),
@@ -145,8 +132,7 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
                 checker += 1
             if not process_running("master.py"):
                 checker += 1
-            redis_handler = RedisHandler(conf.redis_url)
-            context['critical_error_count'] = redis_handler.get_redis_len(1) + checker
+            context['critical_error_count'] = get_redis_len(conf.redis_url, 1) + checker
         except:
             context['critical_error_count'] = 666
         try:
@@ -189,8 +175,8 @@ class Jobs_Page_View(BaseContextMixin, TemplateView ):
         jobs = Job.objects.all()
 
         
-        # context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
-        context['dmses'] = DMSInfo.objects.all()
+        context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
+        context['dms'] = DMSInfo.objects.all()
         return context
 
 class DMS_Page_View(BaseContextMixin, TemplateView ):
@@ -385,11 +371,12 @@ class Logout_Page_View(BaseContextMixin, TemplateView ):
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
+        
         return context
     
     def dispatch(self, request, *args, **kwargs):
         logout(request)
-        return redirect(reverse('app:login_page'))
+        return redirect('/login')
 
 def get_form_add_dms(request):
     if request.method == 'POST':
@@ -613,11 +600,6 @@ def get_edit_object_data(request):
                 "frequency":job.frequency,
                 "remote_path": job.remote_path,
             })
-
-def get_databases(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        return JsonResponse({"status": "200" ,"databases": ["master","tembdb",'test','test2']})
 
 def start_job(request):
     if request.method == 'POST':
