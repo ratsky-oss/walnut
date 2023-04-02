@@ -146,7 +146,7 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
             if not process_running("master.py"):
                 checker += 1
             redis_handler = RedisHandler(conf.redis_url)
-            context['critical_error_count'] = redis_handler.get_redis_len(conf.redis_url, 1) + checker
+            context['critical_error_count'] = redis_handler.get_redis_len(1) + checker
         except:
             context['critical_error_count'] = 666
         try:
@@ -613,6 +613,11 @@ def get_edit_object_data(request):
                 "frequency":job.frequency,
                 "remote_path": job.remote_path,
             })
+
+def get_databases(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        return JsonResponse({"status": "200" ,"databases": ["master","tembdb",'test','test2']})
 
 def start_job(request):
     if request.method == 'POST':
