@@ -25,7 +25,11 @@ build-deb-package:
   <<: *package-builder
   stage: ci-debug
   script:
-    - ls -la
+        - dpkg-buildpackage -us -uc -b
+        - mv ../*.deb ./
+  artifacts:
+    paths:
+        - ./*.deb
 
 # build-deb-package:
 #   <<: *main-stand
