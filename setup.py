@@ -7,7 +7,7 @@ def get_req():
     return req
 
 setup(
-    name = "walnut",
+    name = "walnuty",
     version = "0.0.1",
     author = "lvtsky&nsh",
     description = ("Ratsky Walnut Backup"),
