@@ -48,14 +48,14 @@ def check_worker_count(max_worker):
 def callback(ch, method, properties, body):
     worker_count = len(redis_handler.keys())
     rabbitmq_message = json.loads(body)
-    redis_handler.send_info_to_redis(0,f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}", rabbitmq_message)
+    redis_handler.send_info_to_redis(conf.redis_worker_database,f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}", rabbitmq_message)
     if check_worker_count(conf.max_worker):
         logger.info("Starting new worker")
         try:
             popen = subprocess.Popen(['opt/venvs/walnut/bin/python', 'opt/venvs/walnut/bin/worker.py', f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         except Exception as e:
             logger.error(f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
-            redis_handler.send_error_to_redis(1,f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}" ,str(datetime.datetime.now()), f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
+            redis_handler.send_error_to_redis(conf.redis_error_database,f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}" ,str(datetime.datetime.now()), f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
     else:
         while not(check_worker_count(conf.max_worker)):
             sleep(5)
@@ -63,7 +63,7 @@ def callback(ch, method, properties, body):
             popen = subprocess.Popen(['opt/venvs/walnut/bin/python', 'opt/venvs/walnut/bin/worker.py', f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         except Exception as e:
             logger.error(f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
-            redis_handler.send_error_to_redis(1,f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}" ,str(datetime.datetime.now()), f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")  
+            redis_handler.send_error_to_redis(conf.redis_error_database,f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}" ,str(datetime.datetime.now()), f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")  
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 @logger.catch               
@@ -78,5 +78,5 @@ if __name__ == "__main__":
     conf = MasterConfig()
     redis_handler = RedisHandler(conf.redis_url)
     logger.add(conf.log_path, rotation=conf.log_rotation, level=conf.log_level)
-    redis_handler.del_all_keys_into_redis(0)
+    redis_handler.del_all_keys_into_redis(conf.redis_worker_database)
     get_message()

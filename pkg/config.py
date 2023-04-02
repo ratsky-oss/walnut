@@ -114,7 +114,14 @@ class Config():
             self.redis_port = os.environ.get('APP_REDIS_PORT') or self.__config["main"]["redis"]["port"]
         except:
             self.redis_port = '6379'
-
+        try:
+            self.redis_worker_database = os.environ.get('APP_REDIS_WORKER_DATABASE') or self.__config["main"]["redis"]["worker_database"]
+        except:
+            self.redis_worker_database = 0
+        try:
+            self.redis_error_database = os.environ.get('APP_REDIS_ERROR_DATABASE') or self.__config["main"]["redis"]["error_database"]
+        except:
+            self.redis_error_database = 1
 
 
 class MasterConfig(Config, Logging):
