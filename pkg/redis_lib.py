@@ -42,3 +42,24 @@ class RedisHandler:
             logger.info(f"[REDIS] Clear redis db {db_number}")
         except Exception as e:
             logger.error(f'[REDIS] {e}')
+    
+    def get_values_from_redis(self, db_number, keys_list, field):
+        result = {}
+        try:
+            self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
+            for key in keys_list:
+                value = self.redis_connection.hget(key, field)
+                if value is not None:
+                    result[key] = value
+            return result
+        except Exception as e:
+            logger.error(f'[REDIS] {e}')
+            return None
+    
+    def get_redis_len(self, db_number, key_pattern="arkadiy_*"):
+        try:
+            self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
+            return len(self.redis_connection.keys(key_pattern))
+        except Exception as e:
+            logger.error(f'[REDIS] {e}')
+            return None
