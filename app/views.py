@@ -188,8 +188,8 @@ class Jobs_Page_View(BaseContextMixin, TemplateView ):
         jobs = Job.objects.all()
 
         
-        context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
-        context['dms'] = DMSInfo.objects.all()
+        # context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
+        context['dmses'] = DMSInfo.objects.all()
         return context
 
 class DMS_Page_View(BaseContextMixin, TemplateView ):

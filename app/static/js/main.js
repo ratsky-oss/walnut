@@ -276,6 +276,7 @@ $(document).ready(function(){
     });
     $(".dropdown_table").on('click', function(){
         $self = this
+        console.log($self)
         if ($.inArray("show-table", $("#table_"+$self.id.split("_")[1]+ " tbody").attr("class").split(" ")) == -1) {
             $("#table_"+$self.id.split("_")[1] + " tbody").addClass("show-table")
             $("#table_"+$self.id.split("_")[1]).removeClass("backup-table")
