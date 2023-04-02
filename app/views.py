@@ -15,6 +15,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db import IntegrityError
 from django.utils import timezone
+from django.urls import reverse
 
 import sqlalchemy
 import psutil
@@ -77,7 +78,7 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
         conf = Config()
@@ -180,7 +181,7 @@ class Jobs_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
 
@@ -205,7 +206,7 @@ class DMS_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
 
@@ -228,7 +229,7 @@ class Backup_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
 
@@ -253,7 +254,7 @@ class Backup_Search_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
 
 
@@ -285,7 +286,7 @@ class Status_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
         conf = Config()
@@ -323,7 +324,7 @@ class Config_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
 
@@ -344,7 +345,7 @@ class Users_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
 
