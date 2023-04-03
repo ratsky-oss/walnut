@@ -5,6 +5,8 @@ include:
   - template: Code-Quality.gitlab-ci.yml
 
 code_quality:
+  variables:
+    CODECLIMATE_DEBUG: "1"
   services:
   tags:
     - docker
