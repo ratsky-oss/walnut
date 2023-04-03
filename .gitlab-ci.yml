@@ -6,7 +6,6 @@ include:
 
 code_quality:
   services:
-    - dockerproxy
   tags:
     - docker
     - walnut
