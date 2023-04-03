@@ -7,6 +7,7 @@ include:
 code_quality:
   variables:
     CODECLIMATE_DEBUG: "1"
+    SOURCE_CODE: "/builds/ratsky/walnut/walnut/"
   services:
   tags:
     - docker
