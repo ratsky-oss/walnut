@@ -105,13 +105,13 @@ collect_static() {
         echo "| COLLECT STATIC      |"
         echo "----------------------"
         . /opt/venvs/walnut/bin/activate 
-        manage.py collectstatic --no-input
+        manage.py collectstatic --no-input --clear
 }
 
 configure(){
         setup_database
-        add_trigger
         migrate
+        add_trigger
         configuring_redis
         configuring_rabbit        
         cert

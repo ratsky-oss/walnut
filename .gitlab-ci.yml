@@ -3,17 +3,28 @@
     - walnut
     - build-stand
   only: 
+    - dev
+    - main
+
+.package-builder: &package-builder
+  image: dh-venv-builder
+  tags:
+    # - ssh-docker
+    - docker
+    - walnut
+  only:
+    - dev
     - main
 
 
 stages:
+  # - ci-debug
   - build
-#   - test
   - deploy
   - healthcheck
 
 build-deb-package:
-  <<: *main-stand
+  <<: *package-builder
   stage: build
   script:
         - dpkg-buildpackage -us -uc -b
