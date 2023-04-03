@@ -57,6 +57,48 @@ $(document).ready(function(){
                 '</div>'
         });
     };
+    $(".AddJob").on('click', function(){
+        var selectedId = $(".DMSChecker").find("option:selected").attr("id");
+        var $data = {"dms_id":selectedId};
+        console.log(selectedId)
+        // Отправка POST-запроса на сервер
+
+        $.ajax({
+            url: 'jobs/getDatabases',
+            type: "POST",
+            dataType: 'json',
+            data: JSON.stringify($data),
+            headers: {
+                'X-CSRFToken': getCookie("csrftoken"),
+            },
+            contentType: 'application/json;charset=UTF-8', // post data || get data
+            success : function(result) {
+                if (result.status == "200") {
+                    var hashtagDiv = $(".hashtag_div");
+                    hashtagDiv.empty();
+                    hashtagDiv.append("<span>Databases:</span>")
+                    hashtagDiv.append("<span class='btn btn-primary hashtags'>all</span>")
+                    for (var i = 0; i < result.databases.length; i++) {
+                        var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
+                        hashtagDiv.append(newSpan);
+                    }
+                    $('input[data-role="tagsinput"]').tagsinput();
+
+                    $('.hashtags').on('click', function() {
+                    var hashtagText = $(this).text();
+                    var input = $('input[data-role="tagsinput"]');
+
+                    input.tagsinput('add', hashtagText);
+                    });
+                } else {
+                    notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', ' ', result.error);
+                }
+            },
+            error: function(xhr, resp, text) {
+                notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Can not connect to walnut django server');
+            }
+        })
+    });
     $(".deleteDMS").on('click', function(){
         $(".deleteDMS-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="deleteDMS_${this.id}" class="btn btn-primary deleteDMSAccept" data-dismiss="modal" aria-label="Close">Yes</button`)
         $(".deleteDMSAccept").on('click', function(){
@@ -176,9 +218,11 @@ $(document).ready(function(){
             },
             contentType: 'application/json;charset=UTF-8', // post data || get data
             success : function(result) {
+                var input = $('input[data-role="tagsinput"]');
                 $('.editJobinput[name=dst_db]').val(result.dst_db);
                 $('.editJobinput[name=name]').val(result.name);
-                $('.editJobinput[name=db_name]').val(result.db_name);
+                input.tagsinput('removeAll');
+                input.tagsinput('add', result.db_name);
                 $('.editJobinput[name=rotation]').val(result.rotation);
                 $('.editJobinput[name=frequency]').val(result.frequency);
                 if ($('.DMSChecker').val().split('/')[0] === 'mssql') {
@@ -190,6 +234,46 @@ $(document).ready(function(){
             },
             error: function(xhr, resp, text) {
                 notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
+            }
+        })
+        var selectedId = $(".DMSChecker").find("option:selected").attr("id");
+        var $data = {"dms_id":selectedId};
+        console.log(selectedId)
+        // Отправка POST-запроса на сервер
+
+        $.ajax({
+            url: 'jobs/getDatabases',
+            type: "POST",
+            dataType: 'json',
+            data: JSON.stringify($data),
+            headers: {
+                'X-CSRFToken': getCookie("csrftoken"),
+            },
+            contentType: 'application/json;charset=UTF-8', // post data || get data
+            success : function(result) {
+                if (result.status == "200") {
+                    var hashtagDiv = $(".hashtag_div");
+                    hashtagDiv.empty();
+                    hashtagDiv.append("<span>Databases:</span>")
+                    hashtagDiv.append("<span class='btn btn-primary hashtags'>all</span>")
+                    for (var i = 0; i < result.databases.length; i++) {
+                        var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
+                        hashtagDiv.append(newSpan);
+                    }
+                    $('input[data-role="tagsinput"]').tagsinput();
+
+                    $('.hashtags').on('click', function() {
+                    var hashtagText = $(this).text();
+                    var input = $('input[data-role="tagsinput"]');
+
+                    input.tagsinput('add', hashtagText);
+                    });
+                } else {
+                    notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', ' ', result.error);
+                }
+            },
+            error: function(xhr, resp, text) {
+                notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Can not connect to walnut django server');
             }
         })
         $(".editJobAccept").on('click', function(){

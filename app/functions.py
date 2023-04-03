@@ -6,15 +6,8 @@
 #  2 Any distribution of the App or derivative works must include a copy of the GPL 3.0 license.
 #  3 The App is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the App or the use or other dealings in the App.
 # For more information on the GPL 3.0 license, please visit https://www.gnu.org/licenses/gpl-3.0.en.html.
-import redis
 import pika
 
-from pkg.config import Config
-
-
-def get_redis_len(redis_url, redis_db):
-    redis_connect = redis.StrictRedis.from_url(redis_url, decode_responses=True, db=redis_db)
-    return len(redis_connect.keys("arkadiy_*"))
 
 def get_queue_len(rabbitmq_url, rabbitmq_queue_name):
     connection = pika.BlockingConnection(pika.URLParameters(rabbitmq_url))

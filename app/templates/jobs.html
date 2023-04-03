@@ -88,7 +88,11 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                         </div>
                                         <div class="form-group">
                                             <label>Database name</label>
-                                            <input name="db_name" type="text" class="form-control editJobinput" placeholder="simple" value="all">
+                                            <input class="tagsinput" name="db_name" type="text"  value="all" data-role="tagsinput" />
+                                            <div class="hashtag_div">
+                                                <span>Databases:</span>
+                                                <span class="hashtags">all</span>
+                                            </div>
                                             <p>You can`t add more than 1 database when editing!</p>
                                         </div>
                                         <div class="form-group">
@@ -102,8 +106,8 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                             <label for="JobFormControlSelect1">Select DMS</label>
                                             <div class="input-group mb-3">
                                                 <select name="dst_db" class="form-control editJobinput DMSChecker" id="JobFormDMSEdit">
-                                                    {% for item in dms %}
-                                                        <option value="{{ item.type }}" id="{{ item.dst_db.id }}">{{ item.type }}/{{ item.dst_db.host }}</option>
+                                                    {% for dms in dmses %}
+                                                        <option value="{{ dms.type }}" id="{{ dms.dst_db.id }}">{{ dms.type }}/{{ dms.dst_db.host }}</option>
                                                     {% endfor %}
                                                 </select>
                                                 <div class="input-group-append">
@@ -163,8 +167,11 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                         </div>
                                         <div class="form-group">
                                             <label>Database name</label>
-                                            <input name="db_name" type="text" class="form-control" placeholder="simple" value="all">
-                                            <p>You can add more than 1 database, just write them separated by commas.<br>Example: database1,database2</p>
+                                            <input class="tagsinput" name="db_name" type="text"  value="all" data-role="tagsinput" />
+                                            <div class="hashtag_div">
+                                                <span>Databases:</span>
+                                                <span class="btn btn-primary hashtags">all</span>
+                                            </div>
                                         </div>
                                         <div class="form-group">
                                             <label for="JobFormControlSelect1">Select action</label>
@@ -177,8 +184,8 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                             <label for="JobFormControlSelect1">Select DMS</label>
                                             <div class="input-group mb-3">
                                                 <select name="dst_db" class="form-control DMSChecker" id="JobFormDMSAdd">
-                                                    {% for item in dms %}
-                                                        <option id="{{ item.dst_db.id }}">{{ item.type }}/{{ item.dst_db.host }}</option>
+                                                    {% for dms in dmses %}
+                                                        <option value="{{ dms.type }}" id="{{ dms.dst_db.id }}">{{ dms.type }}/{{ dms.dst_db.host }}</option>
                                                     {% endfor %}
                                                 </select>
                                                 <div class="input-group-append">
@@ -211,64 +218,80 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                     <div class="page-wrapper">
                         <div class="row">
                             <div class="col-xl-12">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Job name</th>
-                                            <th>DMS</th>
-                                            <th>Data base</th>
-                                            <th>Rotation</th>
-                                            <th>Schedule</th>
-                                            <th>Action</th>
-                                            <th>Status</th>
-                                            <th>Options</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for job in jobs %}
-                                        <tr class="job_{{ job.0.id }}">
-                                            <td>
-                                                <h6 class="mb-1">{{ job.0.name }}</h6>
-                                            </td>
-                                            <td>
-                                                <h6 class="mb-1">{{ job.1.dst_db.host }}/{{ job.1.type }}</h6>
-                                            </td>
-                                            <td>
-                                                <h6 class="m-b-0">{{ job.0.db_name }}</h6>
-                                            </td>
-                                            <td>
-                                                <h6 class="m-b-0">{{ job.0.rotation }}</h6>
-                                            </td>
-                                            <td>
-                                                <h6 class="m-b-0">{{ job.0.frequency }}</h6>
-                                            </td>
-                                            <td>
-                                                {% if job.0.action == "b" %}
-                                                    <h6 class="m-b-0">Backup</h6>
-                                                {% else %}
-                                                    <h6 class="m-b-0">Restore</h6>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <div class="switch d-inline m-r-10">
-                                                    {% if job.0.status == "e" %}
-                                                        <input type="checkbox" id="switch-{{job.0.id}}"  class="job-status-switch" checked>
-                                                        <label for="switch-{{job.0.id}}" class="cr"></label>
-                                                    {% else %}
-                                                        <input type="checkbox" id="switch-{{job.0.id}}" class="job-status-switch">
-                                                        <label for="switch-{{job.0.id}}" class="cr"></label>
-                                                    {% endif %}
+                                <div class="card-block">
+                                    {% for dms in dmses %}
+                                        <div class="card">
+                                            <div class="card-block">
+                                                <div class="row align-items-center justify-content-center">
+                                                    <div class="col">
+                                                        <h3 class="text-c-blue">{{ dms.dst_db.host }}/{{ dms.type }}</h3>
+                                                    </div>
+                                                    <div class="col text-right">
+                                                        <h5>Jobs count: {{ dms.dst_db.job_set.all|length }}</h5>
+                                                        <i class="card-icon feather icon-chevron-down f-34 dropdown_table" id="div_{{ dms.id }}"></i>
+                                                    </div>
+                                                    <table class="table table-hover backup-table" id="table_{{ dms.id }}">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Job name</th>
+                                                                <th>DMS</th>
+                                                                <th>Data base</th>
+                                                                <th>Rotation</th>
+                                                                <th>Schedule</th>
+                                                                <th>Action</th>
+                                                                <th>Status</th>
+                                                                <th>Options</th>
+                                                        </thead>
+                                                        <tbody class="">
+                                                            {% for job in dms.dst_db.job_set.all %}
+                                                            <tr class="job_{{ job.id }}">
+                                                                <td>
+                                                                    <h6 class="mb-1">{{ job.name }}</h6>
+                                                                </td>
+                                                                <td>
+                                                                    <h6 class="mb-1">{{ job.dst_db.host }}/{{ job.type }}</h6>
+                                                                </td>
+                                                                <td>
+                                                                    <h6 class="m-b-0">{{ job.db_name }}</h6>
+                                                                </td>
+                                                                <td>
+                                                                    <h6 class="m-b-0">{{ job.rotation }}</h6>
+                                                                </td>
+                                                                <td>
+                                                                    <h6 class="m-b-0">{{ job.frequency }}</h6>
+                                                                </td>
+                                                                <td>
+                                                                    {% if job.action == "b" %}
+                                                                        <h6 class="m-b-0">Backup</h6>
+                                                                    {% else %}
+                                                                        <h6 class="m-b-0">Restore</h6>
+                                                                    {% endif %}
+                                                                </td>
+                                                                <td>
+                                                                    <div class="switch d-inline m-r-10">
+                                                                        {% if job.status == "e" %}
+                                                                            <input type="checkbox" id="switch-{{job.id}}"  class="job-status-switch" checked>
+                                                                            <label for="switch-{{job.0.id}}" class="cr"></label>
+                                                                        {% else %}
+                                                                            <input type="checkbox" id="switch-{{job.id}}" class="job-status-switch">
+                                                                            <label for="switch-{{job.id}}" class="cr"></label>
+                                                                        {% endif %}
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button"  data-original-title="Start job" id="{{ job.id }}" class="btn btn-icon btn-outline-secondary startJob"><i class="feather icon-fast-forward"></i></button>
+                                                                    <button type="button"  data-original-title="Edit job" data-toggle="modal" data-target="#editJob" id="{{ job.id }}" class="btn btn-icon btn-outline-secondary editJob"><i class="feather icon-edit"></i></button>
+                                                                    <button type="button"  data-original-title="Delete job" data-toggle="modal" data-target="#deleteJob" id="{{ job.id }}" class="btn btn-icon btn-outline-secondary deleteJob"><i class="feather icon-trash-2"></i></button>
+                                                                </td>
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-                                            </td>
-                                            <td>
-                                                <button type="button"  data-original-title="Start job" id="{{ job.0.id }}" class="btn btn-icon btn-outline-secondary startJob"><i class="feather icon-fast-forward"></i></button>
-                                                <button type="button"  data-original-title="Edit job" data-toggle="modal" data-target="#editJob" id="{{ job.0.id }}" class="btn btn-icon btn-outline-secondary editJob"><i class="feather icon-edit"></i></button>
-                                                <button type="button"  data-original-title="Delete job" data-toggle="modal" data-target="#deleteJob" id="{{ job.0.id }}" class="btn btn-icon btn-outline-secondary deleteJob"><i class="feather icon-trash-2"></i></button>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -280,7 +303,7 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
 <div class="fixed-top m-t-10 top-button">
     <div class="row float-right">
         <div class="col-md-12">
-            <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#AddJob">Add job</button>
+            <button type="button" class="btn btn-primary AddJob" data-toggle="modal" data-target="#AddJob">Add job</button>
         </div>
     </div>
 </div>

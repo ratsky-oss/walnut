@@ -1,16 +1,7 @@
-# Copyright (c) 2023 Shvora Nikita, Livitsky Andrey
-# This app, Ratsky Walnut, is licensed under the GNU General Public License version 3.0 (GPL 3.0).
-# All source code, design, and other intellectual property rights of Ratsky Walnut, including but not limited to text, graphics, logos, images, and software, are the property of the Ratsky community and are protected by international copyright laws.
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this app and associated documentation files (the "App"), to deal in the App without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the App, and to permit persons to whom the App is furnished to do so, subject to the following conditions:
-#  1 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the App.
-#  2 Any distribution of the App or derivative works must include a copy of the GPL 3.0 license.
-#  3 The App is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the App or the use or other dealings in the App.
-# For more information on the GPL 3.0 license, please visit https://www.gnu.org/licenses/gpl-3.0.en.html.
-
 import pika
 import redis
-import json
 import os
+import json
 import  subprocess
 import datetime
 
@@ -19,48 +10,7 @@ from time import sleep
 from loguru import logger
 
 from pkg.config import MasterConfig 
-
-
-
-@logger.catch
-def del_info_into_redis(redis_connect, key):
-    try:
-        redis_connect.delete(key)
-    except Exception as e:
-        logger.error(f'[REDIS] {e}')
-
-def del_all_keys_into_redis(db_number):
-    try:
-        redis_connect = redis.StrictRedis.from_url(f"{conf.redis_url}/{db_number}", decode_responses=True)
-        for key in redis_connect.keys("*"):
-            del_info_into_redis(redis_connect, key)
-        logger.info(f"[REDIS] Clear redis db {db_number}")
-    except Exception as e:
-        logger.error(f'[REDIS] {e}')
-
-@logger.catch          
-def send_error_to_redis(worker_name , timestamp, error):
-    try:
-        redis_connect = redis.StrictRedis.from_url(conf.redis_url+"/1", decode_responses=True)
-        error_info = {
-            "timestamp": timestamp,
-            "error": error,
-        }
-        redis_connect.hmset(worker_name, error_info)
-        redis_connect.expire(name = worker_name, time=86400)
-    except Exception as e:
-        logger.error(f'[REDIS] {e}')
-
-@logger.catch
-def send_info_to_redis(message, worker_name):
-    try:
-        redis_connect = redis.StrictRedis.from_url(
-                                        conf.redis_url, 
-                                        decode_responses=True
-                                    )
-        redis_connect.hmset(worker_name,  message)
-    except Exception as e:
-        logger.error(f'[REDIS] {e}')
+from pkg.redis_lib import RedisHandler
     
 
 @logger.catch
@@ -96,17 +46,16 @@ def check_worker_count(max_worker):
 
 @logger.catch
 def callback(ch, method, properties, body):
-    redis_connect = redis.StrictRedis.from_url(conf.redis_url, decode_responses=True)
-    worker_count = len(redis_connect.keys())
+    worker_count = len(redis_handler.keys())
     rabbitmq_message = json.loads(body)
-    send_info_to_redis(rabbitmq_message, f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}")
+    redis_handler.send_info_to_redis(conf.redis_worker_database,f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}", rabbitmq_message)
     if check_worker_count(conf.max_worker):
         logger.info("Starting new worker")
         try:
             popen = subprocess.Popen(['opt/venvs/walnut/bin/python', 'opt/venvs/walnut/bin/worker.py', f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         except Exception as e:
             logger.error(f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
-            send_error_to_redis(f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}" ,str(datetime.datetime.now()), f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
+            redis_handler.send_error_to_redis(conf.redis_error_database,f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}" ,str(datetime.datetime.now()), f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
     else:
         while not(check_worker_count(conf.max_worker)):
             sleep(5)
@@ -114,7 +63,7 @@ def callback(ch, method, properties, body):
             popen = subprocess.Popen(['opt/venvs/walnut/bin/python', 'opt/venvs/walnut/bin/worker.py', f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         except Exception as e:
             logger.error(f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
-            send_error_to_redis(f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}" ,str(datetime.datetime.now()), f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")  
+            redis_handler.send_error_to_redis(conf.redis_error_database,f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}" ,str(datetime.datetime.now()), f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")  
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 @logger.catch               
@@ -127,6 +76,7 @@ def get_message():
 
 if __name__ == "__main__":
     conf = MasterConfig()
+    redis_handler = RedisHandler(conf.redis_url)
     logger.add(conf.log_path, rotation=conf.log_rotation, level=conf.log_level)
-    del_all_keys_into_redis(0)
+    redis_handler.del_all_keys_into_redis(conf.redis_worker_database)
     get_message()
