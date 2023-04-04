@@ -46,7 +46,7 @@ def check_worker_count(max_worker):
 
 @logger.catch
 def callback(ch, method, properties, body):
-    worker_count = len(redis_handler.keys())
+    worker_count = redis_handler.get_redis_len(conf.redis_worker_database)
     rabbitmq_message = json.loads(body)
     redis_handler.send_info_to_redis(conf.redis_worker_database,f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}", rabbitmq_message)
     if check_worker_count(conf.max_worker):
