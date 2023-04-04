@@ -28,3 +28,6 @@ tzlocal==4.2
 wrapt==1.14.1
 dj-database-url==1.0.0
 pyodbc==4.0.35
+
+dj-database-url==1.0.0
+pyodbc==4.0.35
