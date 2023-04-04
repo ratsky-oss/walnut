@@ -105,7 +105,7 @@ collect_static() {
         echo "| COLLECT STATIC      |"
         echo "----------------------"
         . /opt/venvs/walnut/bin/activate 
-        manage.py collectstatic --no-input --clear
+        manage.py collectstatic --no-input
 }
 
 configure(){
