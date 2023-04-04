@@ -4,11 +4,12 @@ from datetime import timedelta
 
 class RedisHandler:
     def __init__(self, connection_string):
-        self.redis_connection =redis.StrictRedis.from_url(connection_string, decode_responses=True)
+        self.connection_string = connection_string
+        self.connections = {}
 
     def get_connection(self, db_number):
         if db_number not in self.connections:
-            self.connections[db_number] = redis.StrictRedis.from_url(self.redis_url, decode_responses=True, db=db_number)
+            self.connections[db_number] = redis.StrictRedis.from_url(self.connection_string, decode_responses=True, db=db_number)
         return self.connections[db_number]
 
     def del_info_into_redis(self, db_number, key):
