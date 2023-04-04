@@ -5,6 +5,8 @@
   only: 
     - dev
     - main
+    - fix_dev
+
 
 .package-builder: &package-builder
   image: dh-venv-builder
@@ -12,9 +14,10 @@
     # - ssh-docker
     - docker
     - walnut
-  only:
+  only: 
     - dev
     - main
+    - fix_dev
 
 
 stages:
