@@ -71,7 +71,7 @@ class MSSQL(SQL):
         except Exception as e:
             logger.error(f"[{worker_name}] {e}")
             db_delete_backup_info(engine, full_path)
-            redis_handler.send_error_to_redis(conf.redis_error_database, worker_name, job_name, str(datetime.datetime.now()), e)
+            redis_handler.send_error_to_redis(conf.redis_error_database, job_name, str(datetime.datetime.now()), e)
         
 
     @logger.catch
@@ -230,7 +230,7 @@ class MYSQL(SQL):
             logger.error(f"[{worker_name}]  {err_message}")
             os.remove(full_path)
             db_delete_backup_info(engine, full_path)
-            redis_handler.send_error_to_redis(conf.redis_error_database, worker_name, job_name, str(datetime.datetime.now()), f"[{worker_name}] {err_message}")
+            redis_handler.send_error_to_redis(conf.redis_error_database, job_name, str(datetime.datetime.now()), f"[{worker_name}] {err_message}")
             # send_info_to_redis(conf, worker_name, job_name, "error", str(datetime.datetime.now()), backup_type, self.db_host, True)
         else:
             logger.info(f"[{worker_name}] Successfully backuped {self.db_host} from {self.db_host}")
