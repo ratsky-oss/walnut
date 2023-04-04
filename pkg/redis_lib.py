@@ -17,6 +17,7 @@ class RedisHandler:
         try:
             self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
             self.redis_connection.hmset(key, message)
+            logger.debug(f"Send info to redis db:{db_number} key:{key} message:{message}")
         except Exception as e:
             logger.error(f'[REDIS] {e}')
 
@@ -24,7 +25,7 @@ class RedisHandler:
         error_info = {
             "job_name": job_name,
             "timestamp": timestamp,
-            "error": error,
+            "error": str(error),
         }
         try:
             self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
