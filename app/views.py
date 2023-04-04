@@ -142,14 +142,6 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
             context['queue_len'] = get_queue_len(conf.rabbitmq_url, conf.rabbitmq_queue_name)
         except:
             context['queue_len'] = 0
-            
-            
-            
-            
-            
-            
-            
-
         context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
         context['max_worker_count'] = conf_master.max_worker
         context['shedular_count'] = len(jobs)
