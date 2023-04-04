@@ -44,14 +44,6 @@ nginx_config() {
         fi
 }
 
-add_trigger() {
-        echo "----------------------"
-        echo "| CREATING TRIGGER   |"
-        echo "----------------------"
-        su postgres -c "psql -d walnut < /tmp/walnut/db_init/notify_trigger.sql"
-        su postgres -c "psql -d walnut < /tmp/walnut/db_init/register_trigger.sql" || true
-}
-
 test_init() {
         echo "----------------------"
         echo "| TEST INIT          |"
@@ -76,6 +68,14 @@ migrate() {
         manage.py migrate
         echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | manage.py shell || true
         sec.py
+}
+
+add_trigger() {
+        echo "----------------------"
+        echo "| CREATING TRIGGER   |"
+        echo "----------------------"
+        su postgres -c "psql -d walnut < /tmp/walnut/db_init/notify_trigger.sql"
+        su postgres -c "psql -d walnut < /tmp/walnut/db_init/register_trigger.sql" || true
 }
 
 configuring_redis() {
