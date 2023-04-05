@@ -1,32 +1,8 @@
-variables:
-  DOCKER_HOST: 'tcp://dockerproxy:2375'
-
-include:
-  - template: Code-Quality.gitlab-ci.yml
-
-code_quality:
-  variables:
-    CODECLIMATE_DEBUG: "1"
-    SOURCE_CODE: "/builds/ratsky/walnut/walnut/"
-  services:
-  tags:
-    - docker
-    - walnut
-  artifacts:
-    paths: [gl-code-quality-report.json]
-
-code_quality_html:
-  extends: code_quality
-  variables:
-    REPORT_FORMAT: html
-  artifacts:
-    paths: [gl-code-quality-report.html]
-
 .main-stand: &main-stand
   tags:
     - walnut
     - build-stand
-  only: 
+  only:
     - dev
     - main
     - dev_fix
@@ -37,7 +13,7 @@ code_quality_html:
     # - ssh-docker
     - docker
     - walnut
-  only: 
+  only:
     - dev
     - main
     - dev_fix
@@ -48,7 +24,6 @@ stages:
   - build
   - deploy
   - healthcheck
-  - test
 
 build-deb-package:
   <<: *package-builder
@@ -96,4 +71,4 @@ deploy-status:
     - sudo systemctl status walnut-django.service || journalctl -u walnut-django.service
   needs:
     - deploy
-  when: on_success 
+  when: on_success
