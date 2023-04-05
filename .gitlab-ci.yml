@@ -5,7 +5,7 @@
   only:
     - dev
     - main
-    - dev_fix
+    - fix_dev
 
 .package-builder: &package-builder
   image: dh-venv-builder
@@ -16,7 +16,7 @@
   only:
     - dev
     - main
-    - dev_fix
+    - fix_dev
 
 
 stages:
