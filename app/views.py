@@ -15,7 +15,6 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db import IntegrityError
 from django.utils import timezone
-from django.urls import reverse
 
 import sqlalchemy
 import psutil
@@ -29,15 +28,13 @@ import json
 import os
 import re
 
-from .functions import get_queue_len
+from .functions import get_redis_len, get_queue_len
 from pkg.config import Config, MasterConfig, WorkerConfig, ObserverConfig, DjangoConfig
 from pkg.db_connection import check_dst_db
 from pkg.sql_lib import MSSQL, PGSQL, MYSQL
 from pkg.sec import Cryptorator
 from app.models import DestinationDatabase, DMSInfo, Job, BackupInfo
 from pkg.status_lib import check_connection_telnet, process_running,  worker_status, worker_error
-from pkg.redis_lib import RedisHandler
-
 
 logger = logging.getLogger(__name__)
 #logger.debug('Log whatever you want')
@@ -78,7 +75,7 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect(reverse('app:login_page'))
+            return redirect("/login")
 
     def get_context_data(self, **kwargs):
         conf = Config()
@@ -134,14 +131,21 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
                 checker += 1
             if not process_running("master.py"):
                 checker += 1
-            redis_handler = RedisHandler(conf.redis_url)
-            context['critical_error_count'] = redis_handler.get_redis_len(1) + checker
+            context['critical_error_count'] = get_redis_len(conf.redis_url, 1) + checker
         except:
             context['critical_error_count'] = 666
         try:
             context['queue_len'] = get_queue_len(conf.rabbitmq_url, conf.rabbitmq_queue_name)
         except:
             context['queue_len'] = 0
+            
+            
+            
+            
+            
+            
+            
+
         context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
         context['max_worker_count'] = conf_master.max_worker
         context['shedular_count'] = len(jobs)
@@ -162,7 +166,7 @@ class Jobs_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect(reverse('app:login_page'))
+            return redirect("/login")
 
     def get_context_data(self, **kwargs):
 
@@ -187,7 +191,7 @@ class DMS_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect(reverse('app:login_page'))
+            return redirect("/login")
 
     def get_context_data(self, **kwargs):
 
@@ -210,7 +214,7 @@ class Backup_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect(reverse('app:login_page'))
+            return redirect("/login")
 
     def get_context_data(self, **kwargs):
 
@@ -235,7 +239,7 @@ class Backup_Search_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect(reverse('app:login_page'))
+            return redirect("/login")
 
 
 
@@ -267,7 +271,7 @@ class Status_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect(reverse('app:login_page'))
+            return redirect("/login")
 
     def get_context_data(self, **kwargs):
         conf = Config()
@@ -305,7 +309,7 @@ class Config_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect(reverse('app:login_page'))
+            return redirect("/login")
 
     def get_context_data(self, **kwargs):
 
@@ -326,7 +330,7 @@ class Users_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect(reverse('app:login_page'))
+            return redirect("/login")
 
     def get_context_data(self, **kwargs):
 

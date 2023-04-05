@@ -1,15 +1,3 @@
-walnut (0.1-4) unstable; urgency=medium
-
-  * Fixed a bug related to incorrect search
-
- -- Nikita Shvora <ratsky@example.com>  Tue, 4 Apr 2023 20:00:00 +0300
-
-walnut (0.1-3) unstable; urgency=medium
-
-  * Web-server path hotfix
-
- -- Andy Livitsky <ratsky@example.com>  Sat, 2 Apr 2023 23:00:00 +0300
-
 walnut (0.1-2) unstable; urgency=medium
 
   * ...

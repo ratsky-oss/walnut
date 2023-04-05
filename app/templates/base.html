@@ -38,8 +38,6 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
         <link rel="stylesheet" href="{% static 'css/style.css' %}">
         <!-- <link rel="stylesheet" href="assets/css/layouts/dark.css"> -->
         <link rel="stylesheet" href="{% static 'plugins/data-tables/css/datatables.min.css' %}">
-        <!-- bootstrap-tagsinput-latest css -->
-        <link rel="stylesheet" href="{% static 'plugins/bootstrap-tagsinput-latest/css/bootstrap-tagsinput.css' %}">
         
     
     </head>
@@ -178,10 +176,6 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
         <script src="{% static 'js/pages/tbl-datatable-custom.js' %}"></script>
         <script src="{% static 'plugins/sweetalert/js/sweetalert.min.js' %}"></script>
         <script src="{% static 'js/pages/ac-alert.js' %}"></script>
-        <!-- bootstrap-tagsinput-latest Js -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
-        <script src="{% static 'plugins/bootstrap-tagsinput-latest/js/bootstrap-tagsinput.min.js' %}"></script>
-        <script src="{% static 'js/hashtags.js' %}"></script>
         
         {% if request.path == base_url_path %}
             {% block javascript %}
