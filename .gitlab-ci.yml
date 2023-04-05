@@ -1,3 +1,27 @@
+variables:
+  DOCKER_HOST: 'tcp://dockerproxy:2375'
+
+include:
+  - template: Code-Quality.gitlab-ci.yml
+
+code_quality:
+  variables:
+    CODECLIMATE_DEBUG: "1"
+    SOURCE_CODE: "/builds/ratsky/walnut/walnut/"
+  services:
+  tags:
+    - docker
+    - walnut
+  artifacts:
+    paths: [gl-code-quality-report.json]
+
+code_quality_html:
+  extends: code_quality
+  variables:
+    REPORT_FORMAT: html
+  artifacts:
+    paths: [gl-code-quality-report.html]
+
 .main-stand: &main-stand
   tags:
     - walnut
@@ -5,7 +29,7 @@
   only: 
     - dev
     - main
-    - fix_dev
+    - dev_fix
 
 .package-builder: &package-builder
   image: dh-venv-builder
@@ -13,10 +37,10 @@
     # - ssh-docker
     - docker
     - walnut
-  only:
+  only: 
     - dev
     - main
-    - fix_dev
+    - dev_fix
 
 
 stages:
@@ -24,6 +48,7 @@ stages:
   - build
   - deploy
   - healthcheck
+  - test
 
 build-deb-package:
   <<: *package-builder
