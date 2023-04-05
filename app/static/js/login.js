@@ -63,7 +63,7 @@ $(document).ready(function(){
             $data[this.name] = $(this).val();
         });
         $.ajax({
-            url: '/login',
+            url: 'login',
             type: "POST",
             dataType: 'json',
             headers: {
@@ -73,7 +73,8 @@ $(document).ready(function(){
             contentType: 'application/json;charset=UTF-8', // post data || get data
             success : function(result) {
                 if (result.status == "200") {
-                    window.location.replace("/");
+                    var path = window.location.pathname;
+                    window.location.replace(path.replace('login', ''));
                 } else {
                     notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Login error');
                 }
@@ -92,7 +93,7 @@ $(document).ready(function(){
                 $data[this.name] = $(this).val();
             });
             $.ajax({
-                url: '/login',
+                url: 'login',
                 type: "POST",
                 dataType: 'json',
                 headers: {
@@ -102,7 +103,8 @@ $(document).ready(function(){
                 contentType: 'application/json;charset=UTF-8', // post data || get data
                 success : function(result) {
                     if (result.status == "200") {
-                        window.location.replace("/");
+                        var path = window.location.pathname;
+                        window.location.replace(path.replace('login', ''));
                     } else {
                         notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Login error');
                     }

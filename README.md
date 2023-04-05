@@ -12,25 +12,25 @@
 - [Quick start](#quick-start)
 - [Installation](#installation)
 - [Configuration](#configuration)
-    - [All settings reference](#all-settings-reference) 
+    - [Settings reference](#settings-reference) 
     - [Crucial settings](#crucial-settings)
     - [App management](#app-management)
-- [Setting up production service](#setting-up-production-service)
+- [Setting up a production service](#setting-up-a-production-service)
 - [Usage](#usage)
-    - [Access application](#access-application)
+    - [Access the application](#access-the-application)
     - [Main concepts](#main-concepts)
     - [DMS](#dms)
     - [Jobs](#jobs)
 - [Troubleshooting](#troubleshooting)
 - [License](#license)
-- [Contact](#contact)
+- [Contacts](#contact)
 
 # Overview
-The **Ratsky Walnut** is a tool for **automating and managing the backup** process of your SQL databases. It provides a simple and reliable way to backup your SQL databases on a **schedule or on-demand**, ensuring that you never lose critical data in the event of a system failure or data corruption.
+The **Ratsky Walnut** is a tool for **automatization and management of the backup** process of your SQL databases. It provides a simple and reliable way to backup your SQL databases on a **schedule or on-demand**, ensuring that you never lose critical data in the event of a system failure or data corruption.
 
 The tool supports a wide range of SQL database platforms, including **MySQL**, **MariaDB**, **PostgreSQL**, and **Microsoft SQL Server**. 
 
-The main goal of the project is transforming your backup routine to a pleasant experience. Project was inspired via gobackup and rely on default backuping mechanisms such as pg_dump utility.
+The main goal of the project is transforming your backup routine to a pleasant experience. Project was inspired via [backup/backup project](https://github.com/backup/backup) and rely on default backuping mechanisms such as the pg_dump and mysqldump utilities.
 
 ### MSSQL
   <img src="docs/workflow-mssql.jpg" width="600" />
@@ -53,12 +53,12 @@ The main goal of the project is transforming your backup routine to a pleasant e
 - 2gb RAM
 - 64gb HDD
 
-> Note: actual cpu requirements depends on your setup and amount of databases need to be backuped at a time
+> Note: CPU requirements depend on your setup and amount of databases need to be backuped at a time
 
-> Note: actual HDD requirements depends on size of all backups you want to store on localhost.
+> Note: HDD requirements depends on size of all backups you want to store on localhost.
 
 ### The following packages needed (or should be able to be installed):
-- dpkg (>= 1.16.1)
+
 - python3 (>= 3.8)
 - python3-distutils(>= 3.8)
 - gcc(>= 9.4.0)
@@ -78,18 +78,18 @@ The main goal of the project is transforming your backup routine to a pleasant e
 
 # Quick start
 
-- Download deb package
+- Download the deb package
     ```
-    wget ...
+    wget https://ra-sky.github.io/walnut/walnut_0.1-3.deb
     ```
 - Install 
     ```
-    sudo apt install -y ./{package}.deb
+    sudo apt install -y ./walnut_0.1-3.deb
     ```
 - Go to **https://{your_ip_address}/walnut/**
-- Accept self-signed certificate
+- Accept the self-signed certificate
 
-> Credentials to access
+> Default user credentials
 > ```
 > username: admin
 > password: admin
@@ -97,27 +97,29 @@ The main goal of the project is transforming your backup routine to a pleasant e
 
 
 # Installation
-
-To install Ratsky Walnut backup utility
-- Download deb package
+https://ra-sky.github.io/walnut
+To install Ratsky Walnut backup utility:
+- [Choose version](https://ra-sky.github.io/walnut/)
+- Download deb package 
     ```
-    wget ...
+    wget https://ra-sky.github.io/walnut/walnut_{version}.deb
     ```
 - Install 
     ```
-    sudo apt install -y ./{package}.deb
+    sudo apt install -y ./walnut_{version}.deb
     ```
+
 
 ## Configuration
 
 > Note: configuration file **/etc/walnut/config.yaml**
 
-You may skip [All settings reference](#all-settings-reference) section and go right to [Crucial settings](#crucial-settings)
+You may skip [settings reference](#settings-reference) section and go right to [crucial settings](#crucial-settings)
 
-### All settings reference
+### Settings reference
 
-- **main** - section describing app
-  - **backup_base_path** - path in OS where all backups will be stored
+- **main** - the section describing app
+  - **backup_base_path** - the path in OS where all backups will be stored
   - **database** - application internal database settings
     - **db_name** - database name
     - **host** - hostname where database located
@@ -141,20 +143,20 @@ You may skip [All settings reference](#all-settings-reference) section and go ri
       - **level** - log level
       - **path** - log path
       - **rotation** - rotation size
-    - **max_apschedule_instances** - max scheduled job allowed
-  - **rabbitMQ** - application internal queue settings
-    - **host** - hostname with RMQ 
-    - **port** - port to access RMQ
-    - **queue_name** - name of queue to use
+    - **max_apschedule_instances** - max scheduled jobs allowed
+  - **rabbitMQ** - the application internal queue settings
+    - **host** - the RMQ hostname/address
+    - **port** - the RMQ port
+    - **queue_name** - the name of queue to use
   - **redis** - application internal queue settings
-    - **host** - hostname with redis
-    - **port** - port to access redis
-  - **worker** - walnut-worker component settings
+    - **host** - redis database hostname/address
+    - **port** - redis database port
+  - **worker** - the walnut-worker component settings
     - **log** -
       - **level** - log level
       - **path** - log path
       - **rotation** - rotation size
-- **secret** - passphrase for security issues
+- **secret** - a passphrase for security issues
 
 <br>
 
@@ -215,36 +217,36 @@ secret: gJos1W972c4gLn9UqCvV0lfNp_AvjN988NnW44Ef6sg=
 >         c: "Our variable"
 > ```
 
-Some settings you should take care about:
+Some settings you should or might want to consider:
 
-- **main.backup_base_path** - **path on localhost where all backups will be stored.** You can connect a network folder configured on the OS side at this path to increase data storage reliability."
-- **main.observer.max_apschedule_instances** - **number of scheduled jobs available.** Keep in mind that each additional instance of the **scheduler consumes system resources such as CPU and memory**, so setting this value too high may cause performance issues on your system. It's recommended to start with a low value, monitor system resources, and increase the value as needed. **Default value - 30**.
-- **secret** - **the phrase is used for symmetric encryption of the target database password.** It is initialized during installation. After adding jobs, it **should not be changed**, as the passwords for the target data will not be able to be used in the future.
+- **main.backup_base_path** - **path on localhost where all backups will be stored.** You can connect a network folder configured on the OS side at this path to increase the data storage reliability."
+- **main.observer.max_apschedule_instances** - **number of scheduled jobs available.** Keep in mind that each additional instance of the **scheduler consumes system resources such as CPU and memory**, so setting this value too high might lead to performance issues. It's recommended to start with a low value, monitor system resources and increase the value as needed. **Default value - 30**.
+- **secret** - **the phrase is used for symmetric encryption of the target database password.** It is initialized during installation. After adding jobs, it **should not be changed**, as the passwords for the targeted data will not be usable in the future.
 
-> Note: you may restore the application database from the dump with keeping the same **secret**. Application should work properly. 
+> Note: you may restore the application database from the dump while keeping the same **secret**. 
 
 ---
 
 
-## Setting up production service
+## Setting up a production service
 
 
-Once you have installed the software, you may want to set it up as a production service. Default installation uses several assumptions for quick start. We **highly recommend** you to read and take necessary action **before productional usage**.
+Once you have installed the software, you may want to set it up as a production service. Default installation uses several assumptions for a quick start. We **highly recommend** you to read and take necessary action **before productional usage**.
 
-You may skip the following section and [explore our app](#access-application) right away. **Just make sure to come back and read the section later.**
+You may skip the following section and [explore our application](#access-application) right away. **Just make sure to come back and read the following section later.**
 
 ### Nginx
 
-Nginx config customization recommended.
+Nginx config customization is recommended.
 **Default config was made for exploration services only.**
 
-In the initial startup we use self-singed certificate with "walnut.ratsky.local" DN. Feel free to use private.key file since it is generated on your localhost while installation.
+In the initial startup we use a self-singed certificate with "walnut.ratsky.local" DN. Feel free to use private.key file since it is generated on your localhost during installation.
 
-**We suggest you to change certificate via your own certificate.**
+**We suggest that you replace the certificate with one of your own.**
 
 > Note: key and certificate path -> **/etc/nginx/certs/**
 
-> If you'd like to change default walnut nginx path , verify your **main.django.base_url_path** setting
+> If you would like to change the default walnut nginx path , verify your **main.django.base_url_path** setting
 
 ### Others
 
@@ -253,20 +255,20 @@ Following services should be accessed **only** from localhost:
 - RabbitMQ
 - PostgreSQL
 
-We suggest you to change password for user walnut in all services listed above.
+We suggest changing the password for walnut user in all services listed above.
 
 > Note: Ratsky Walnut was designed to work **inside local network only**
 
 ## App management
 
-Some frequent application structure concepts. If you are interested in app structure, feel free to [contact us](#contact).
+Some frequent application structure concepts. If you are interested in application structure, feel free to [contact us](#contact).
 <br>
-App consists of 3 main components:
+The application consists of the three main components:
 - walnut-django
 - walnut-observer
 - walnut-master
 
-And 4 additional components:
+And four additional components:
 - postgresql
 - redis
 - rabbitmq
@@ -274,23 +276,23 @@ And 4 additional components:
 
 For correct application usage all component should be running.
 
-To make all component run at once use walnut.target
+To make all component run at once use the walnut.target
 ```
 sudo systemctl start walnut.target
 ```
-**Restart** and **stop** actions are also allowed. However you couldn't see status of application via walnut.target
+**Restart** and **stop** actions are also allowed. However you cannot see the status of application via the walnut.target
 
-Alternatively, you can manipulate application via walnut-django.service, walnut-observer.service and walnut-master.service
+Alternatively, you can manipulate application via the walnut-django.service, the walnut-observer.service and the walnut-master.service
 
 <br>
 
 # Usage
-## Access application
+## Access the application
 
-Right after installation you should be able to access application from browser
+Right after installation you should be able to access the application from the browser
 **https://{your_ip_address}/walnut/** unless you change nginx configuration.
 
-Default certificate won't be valid. To explore app accept certificate. Just make sure to come back to [setting up production section](#setting-up-production-service).
+Default certificate won't be valid. To explore app accept certificate. Just make sure to come back to [setting up production section](#setting-up-a-production-service).
 
 First access:
 ```
@@ -298,26 +300,26 @@ username: admin
 password: admin
 ```
 
-> Right after first logging go to Settings -> Users
+> Right after first login navigate to Settings -> Users
 <br>**Create** new user **or change** admin password at least
 
 ## Main concepts
 
-Ratsky walnut allows you to set up various backup flows.
+Ratsky Walnut allows you to set up various backup flows.
 <br>
-Main concept of manipulating your backup strategy is two profiles.
-- DMS profile - profile describing how to connect to specified DMS
-- Job profile - profile describing backup parameters
+Main concept of manipulating your backup strategy includes two profiles.
+- DMS profile - the profile describing how to connect to specified DMS
+- Job profile - the profile describing backup parameters
 
 
 ### DMS
 
-To configure a DMS profile, go to the DMS page, click on the 'Add DMS' button, and fill out the following information:
+To configure a DMS profile, go to the DMS page, click 'Add DMS' button and fill out the following sections:
 
 - Type - mssql/postgres/mysql
 - Version (could be blank) 
 - Host - network accessible hostname or ip
-- Port - port to access DMS
+- Port - a port to access DMS
 - Username - user with right permissions
 - Password - user's password
 
@@ -327,14 +329,14 @@ To configure a DMS profile, go to the DMS page, click on the 'Add DMS' button, a
 
 ### Jobs
 
-After configuring DMS profile Jobs can be added:
+After configuring DMS profile, Jobs can be added:
 
-- Name - job name. Must be unique.
-- Database name - name of database in DMS to be backuped. Word "all" can be used to backup all databases in selected DMS
-- Action - currently only backup action allowed.
-- DMS - DMS profile.
-- Frequency - cron schedule expression.
-- Rotation - number of backups stored.
+- Name - a job name. Must be unique.
+- Database name - name of the database in DMS to be backuped. Word "all" can be used to backup all databases in selected DMS.
+- Action - currently only backup action is allowed.
+- DMS - a DMS profile.
+- Frequency - a cron schedule expression.
+- Rotation - the number of backups stored.
 
 # Troubleshooting
 
@@ -342,13 +344,13 @@ After configuring DMS profile Jobs can be added:
 
 Copyright Disclaimer:
 
-Ratsky Walnut is an app developed by Shvora Nikita and Livitsky Andrey, licensed under the GNU General Public License version 3.0 (GPL 3.0).
+Ratsky Walnut is the application developed by Shvora Nikita and Livitsky Andrey, licensed under the GNU General Public License version 3.0 (GPL 3.0).
 
 All source code, design, and other intellectual property rights of Ratsky Walnut, including but not limited to text, graphics, logos, images, and software, are the property of the authors and contributors of the respective open source projects, and are protected by international copyright laws.
 
-The information provided by Ratsky Walnut is for general informational purposes only and may not be reproduced, distributed, or transmitted in any form or by any means without the prior written permission of the authors and contributors of the respective open source projects. Unauthorized use of any content on this app is strictly prohibited and may result in legal action.
+The information provided by Ratsky Walnut is for general informational purposes only and cannot be reproduced, distributed, or transmitted in any form or by any means without the prior written permission of the authors and contributors of the respective open source projects. Unauthorized use of any content on this app is strictly prohibited and may result in legal action.
 
-Ratsky Walnut is licensed under the GNU General Public License version 3.0 (GPL 3.0), which provides users with the freedom to run, copy, distribute, study, change, and improve the software. However, the authors and contributors of the respective open source projects make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability, or availability of the app or the information, products, services, or related graphics contained in the app for any purpose. Any reliance you place on such information is therefore strictly at your own risk.
+Ratsky Walnut is licensed under the GNU General Public License version 3.0 (GPL 3.0), which provides users with the freedom to run, copy, distribute, study, change, and improve the software. However, the authors and contributors of the respective open source projects make no representations or warranties of any kind, express or imply, the completeness, accuracy, reliability, suitability, or availability of the app or the information, products, services or related graphics contained in the app for any purpose. Any reliance you place on such information is therefore strictly at your own risk.
 
 In no event will the authors and contributors of the respective open source projects be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the app or the use or other dealings in the app.
 
@@ -360,4 +362,4 @@ All rights reserved.
 
 # Contact
 
-If you have any questions or feedback about the Ratsky Walnut, please contact us at rbsm33g0u@mozmail.com. We would love to hear from you!
+If you have any questions or feedback about the Ratsky Walnut, please contact us at rbsm33g0u@mozmail.com. We would be pleased to receive your feedback!
