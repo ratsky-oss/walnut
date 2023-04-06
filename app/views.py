@@ -80,6 +80,7 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
         else:
             return redirect(reverse('app:login_page'))
 
+
     def get_context_data(self, **kwargs):
         conf = Config()
         django_conf = DjangoConfig()
@@ -89,8 +90,19 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
         redis_handler = RedisHandler(conf_master.redis_url)
         context = super().get_context_data(**kwargs)
         jobs = Job.objects.all()
-        redis_connect = redis.StrictRedis.from_url(conf.redis_url, decode_responses=True, db=0)
 
+        redis_connect = redis.StrictRedis.from_url(conf.redis_url, decode_responses=True, db=0)
+        redis_connect_error = redis.StrictRedis.from_url(conf.redis_url + "/1", decode_responses=True)
+        try:
+            worker_status_bufer =  worker_status(redis_connect)
+            worker_error_bufer = worker_error(redis_connect_error)
+            context["worker_status"] =  copy.deepcopy(worker_status_bufer)
+            for key,value in worker_status_bufer.items():
+                if value["worker_status"] == "error":
+                    context["worker_status"][key]["error_text"] = worker_error_bufer[value["job_name"]]["error_text"]
+        except  Exception as e:
+            context["worker_status"] = {}
+            
         try:
             context['disk'] = [ humanize.intcomma(int(psutil.disk_usage(worker_config.backup_base_path).free/(1024*1024))), 
                             humanize.intcomma(int(psutil.disk_usage(worker_config.backup_base_path).total/(1024*1024))),
@@ -142,14 +154,6 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
             context['queue_len'] = get_queue_len(conf.rabbitmq_url, conf.rabbitmq_queue_name)
         except:
             context['queue_len'] = 0
-            
-            
-            
-            
-            
-            
-            
-
         context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
         context['max_worker_count'] = conf_master.max_worker
         context['shedular_count'] = len(jobs)
