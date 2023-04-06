@@ -23,7 +23,7 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                 <div class="col-md-5">
                                     <div class="input-group">
                                         <select name="utc" class="custom-select" id="inputGroupSelect04">
-                                            {% if request.path == "/backup/search" %}
+                                            {% if request.path == base_url_path|add:"backup/search" %}
                                             <option selected>{{ utc }}</option>
                                             {% else %}
                                             <option selected>utc</option>
@@ -64,7 +64,7 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                 </div>
                                 <div class="col-md-5">
                                     <div class="input-group mb-3">
-                                        {% if request.path == "/backup/search" %}
+                                        {% if request.path == base_url_path|add:"backup/search" %}
                                         <input name="search" type="text" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="basic-addon2" value="{{ search }}">
                                         {% else %}
                                         <input name="search" type="text" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="basic-addon2">
