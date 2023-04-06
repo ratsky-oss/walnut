@@ -1,6 +1,12 @@
 # Changelog
 
-## STABLE [0.1-3] - 2023-04-02 
+## STABLE [0.1-4] - 2023-04-02 
+
+### Fixed
+
+- Fixed a bug with a redirect when searching
+
+## [0.1-3] - 2023-04-02 
 
 ### Fixed
 

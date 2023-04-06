@@ -20,6 +20,7 @@ urlpatterns = [
     path('jobs/optionsJob', views.get_form_add_job, name="get_form_add_job"),
     path('jobs/statusJob', views.get_status_job, name="get_status_job"),
     path('jobs/startJob', views.start_job, name="start_job"),
+    # path('jobs/getDatabases', views.get_databases, name="get_databases"),
     path('dms', views.DMS_Page_View.as_view(), name="DMS_page"),
     path('dms/optionsDMS', views.get_form_add_dms, name="get_form_add_dms"),
     path('object/editObject', views.get_edit_object_data, name="get_edit_object_data"),
