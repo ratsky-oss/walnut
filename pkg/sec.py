@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 ''' Copyright (c) 2023 Shvora Nikita, Livitsky Andrey
  This app, Ratsky Walnut, is licensed under the GNU General Public License version 3.0 (GPL 3.0).
  All source code, design, and other intellectual property rights of Ratsky Walnut, including but not limited to text, graphics, logos, images, and software, are the property of the Ratsky community and are protected by international copyright laws.

@@ -276,7 +276,6 @@ $(document).ready(function(){
     });
     $(".dropdown_table").on('click', function(){
         $self = this
-        console.log($self)
         if ($.inArray("show-table", $("#table_"+$self.id.split("_")[1]+ " tbody").attr("class").split(" ")) == -1) {
             $("#table_"+$self.id.split("_")[1] + " tbody").addClass("show-table")
             $("#table_"+$self.id.split("_")[1]).removeClass("backup-table")
@@ -284,48 +283,6 @@ $(document).ready(function(){
             $("#table_"+$self.id.split("_")[1]).addClass("backup-table")
             $("#table_"+$self.id.split("_")[1] + " tbody").removeClass("show-table")
         };
-    });
-    $("#JobFormDMSAdd").on("change", function() {
-        var selectedId = $(this).find("option:selected").attr("id");
-        var $data = {"dms_id":selectedId};
-        console.log(selectedId)
-        // Отправка POST-запроса на сервер
-
-        $.ajax({
-            url: 'jobs/getDatabases',
-            type: "POST",
-            dataType: 'json',
-            data: JSON.stringify($data),
-            headers: {
-                'X-CSRFToken': getCookie("csrftoken"),
-            },
-            contentType: 'application/json;charset=UTF-8', // post data || get data
-            success : function(result) {
-                if (result.status == "200") {
-                    var hashtagDiv = $(".hashtag_div");
-                    hashtagDiv.empty();
-                    hashtagDiv.append("<span>Databases:</span>")
-                    hashtagDiv.append("<span class='hashtags btn btn-primary hashtags'>all</span>")
-                    for (var i = 0; i < result.databases.length; i++) {
-                        var newSpan = $("<span class='hashtags btn btn-primary hashtags'>" + result.databases[i] + "</span>");
-                        hashtagDiv.append(newSpan);
-                    }
-                    $('input[data-role="tagsinput"]').tagsinput();
-
-                    $('.hashtags').on('click', function() {
-                    var hashtagText = $(this).text();
-                    var input = $('input[data-role="tagsinput"]');
-
-                    input.tagsinput('add', hashtagText);
-                    });
-                } else {
-                    notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', ' ', result.error);
-                }
-            },
-            error: function(xhr, resp, text) {
-                notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Can not connect to walnut django server');
-            }
-        })
     });
 
 });

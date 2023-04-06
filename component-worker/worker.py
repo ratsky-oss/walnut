@@ -7,6 +7,7 @@
 #  3 The App is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the App or the use or other dealings in the App.
 # For more information on the GPL 3.0 license, please visit https://www.gnu.org/licenses/gpl-3.0.en.html.
 import os
+import redis
 import sys
 import datetime
 from pathlib import Path
@@ -17,10 +18,44 @@ from sqlalchemy import create_engine
 from pkg.db_connection import get_db_info, check_path_in_backupinfo
 from pkg.config import WorkerConfig
 from pkg.sql_lib import MSSQL, PGSQL, MYSQL
-from pkg.redis_lib import RedisHandler
-
 
 worker_name = sys.argv[1]
+        
+@logger.catch
+def del_info_into_redis(redis_connect, key):
+    try:
+        redis_connect.delete(key)
+    except Exception as e:
+        logger.error(f'[REDIS] {e}')
+
+@logger.catch          
+def send_info_to_redis(redis_connect, key, job_name,status, timestamp, db_name, db_host):
+    try:
+        worker_info = {
+        "job_name": job_name, 
+        "worker_status": status,
+        "timestamp": timestamp,
+        "db_name": db_name,
+        "db_host": db_host
+        }
+        redis_connect.hmset(key,  worker_info)
+    except Exception as e:
+        logger.error(f'[REDIS] {e}')
+
+@logger.catch          
+def send_error_to_redis(conf, job_name,timestamp, error):
+    try:
+        redis_connect = redis.StrictRedis.from_url(conf.redis_url+"/1", decode_responses=True)
+        error_info = {
+            "job_name": job_name,
+            "timestamp": timestamp,
+            "error": error,
+        }
+        key = len(redis_connect.keys())+1
+        redis_connect.hmset(key, error_info)
+        redis_connect.expire(name = key, time=86400)
+    except Exception as e:
+        logger.error(f'[REDIS] {e}')
 
 @logger.catch
 def create_file_mssql_backup(db_name, full_path, worker_name):
@@ -36,6 +71,7 @@ def check_file_count(path, rotation):
 
 @logger.catch
 def back_up(worker_name, engine):
+    redis_connect = redis.StrictRedis.from_url(conf.redis_url, decode_responses=True)
     db_info = get_db_info(engine, worker_name.split("_")[-1])
     db_host = db_info["connection"]["host"]
     db_port = db_info["connection"]["port"]
@@ -45,13 +81,13 @@ def back_up(worker_name, engine):
     db_name = db_info["connection"]["db_name"]
     name = db_info["job"]["name"]
     full_path = f'{conf.backup_base_path}/{name}/{dms_type}_{db_name}_{datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")}.gz'
-    redis_handler.send_info_to_redis(conf.redis_worker_database, worker_name, {"job_name": name, "worker_status": "pending","timestamp": str(datetime.datetime.now()),"db_name": db_name,"db_host": db_host})
+    send_info_to_redis(redis_connect, worker_name, name, "pending", str(datetime.datetime.now()), db_name, db_host)
     if not check_path_in_backupinfo(engine, full_path):# and check_path_in_filesystem()
         if not(os.path.exists(f'{conf.backup_base_path}/{name}')):
             os.mkdir(f'{conf.backup_base_path}/{name}')
         logger.info(f'[{worker_name}] start backuping {db_name} from {db_host}')
         logger.debug(f'[{worker_name}] start backuping {dms_type}')
-        redis_handler.send_info_to_redis(conf.redis_worker_database, worker_name, {"job_name": name, "worker_status": "started","timestamp": str(datetime.datetime.now()),"db_name": db_name,"db_host": db_host})
+        send_info_to_redis(redis_connect, worker_name, name, "started", str(datetime.datetime.now()), db_name, db_host)
         if dms_type == "mysql":
             mysql = MYSQL(db_name, db_host, db_port, db_username, db_password)
             if db_name == "all":
@@ -67,12 +103,11 @@ def back_up(worker_name, engine):
             mssql = MSSQL(db_name = db_name, db_host = db_host, db_port = db_port, db_username = db_username, db_password = db_password, remote_path = remote_path)
             mssql.backup(engine, conf, worker_name, name)    
     else:
-        redis_handler.del_info_into_redis(conf.redis_worker_database, worker_name)
+        del_info_into_redis(redis_connect, worker_name)
         logger.error(f"[{worker_name}] Not started, backup exists")
     
 if __name__ == "__main__":
     conf = WorkerConfig()
-    redis_handler = RedisHandler(conf.redis_url)
     logger.add(conf.log_path, rotation=conf.log_rotation, level=conf.log_level)
     engine = create_engine(conf.db_url)
     back_up(worker_name, engine)
