@@ -4,24 +4,19 @@ from datetime import timedelta
 
 class RedisHandler:
     def __init__(self, connection_string):
-        self.connections =redis.StrictRedis.from_url(connection_string, decode_responses=True)
-
-    def get_connection(self, db_number):
-        if db_number not in self.connections:
-            self.connections[db_number] = redis.StrictRedis.from_url(self.redis_url, decode_responses=True, db=db_number)
-        return self.connections[db_number]
+        self.redis_connection =redis.StrictRedis.from_url(connection_string, decode_responses=True)
 
     def del_info_into_redis(self, db_number, key):
         try:
-            connection = self.get_connection(db_number)
-            connection.delete(key)
+            self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
+            self.redis_connection.delete(key)
         except Exception as e:
             logger.error(f'[REDIS] {e}')
 
     def send_info_to_redis(self, db_number, key, message):
         try:
-            connection = self.get_connection(db_number)
-            connection.hmset(key, message)
+            self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
+            self.redis_connection.hmset(key, message)
             logger.debug(f"Send info to redis db:{db_number} key:{key} message:{message}")
         except Exception as e:
             logger.error(f'[REDIS] {e}')
@@ -33,17 +28,17 @@ class RedisHandler:
             "error": str(error),
         }
         try:
-            connection = self.get_connection(db_number)
-            key = len(connection.keys()) + 1
-            connection.hmset(key, error_info)
-            connection.expire(key, timedelta(days=1))
+            self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
+            key = len(self.redis_connection.keys()) + 1
+            self.redis_connection.hmset(key, error_info)
+            self.redis_connection.expire(key, timedelta(days=1))
         except Exception as e:
             logger.error(f'[REDIS] {e}')
 
     def del_all_keys_into_redis(self, db_number):
         try:
-            connection = self.get_connection(db_number)
-            for key in connection.keys("*"):
+            self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
+            for key in self.redis_connection.keys("*"):
                 self.del_info_into_redis(db_number, key)
             logger.info(f"[REDIS] Clear redis db {db_number}")
         except Exception as e:
@@ -52,9 +47,9 @@ class RedisHandler:
     def get_values_from_redis(self, db_number, keys_list, field):
         result = {}
         try:
-            connection = self.get_connection(db_number)
+            self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
             for key in keys_list:
-                value = connection.hget(key, field)
+                value = self.redis_connection.hget(key, field)
                 if value is not None:
                     result[key] = value
             return result
@@ -64,10 +59,8 @@ class RedisHandler:
     
     def get_redis_len(self, db_number, key_pattern="arkadiy_*"):
         try:
-            connection = self.get_connection(db_number)
-            return len(connection.keys(key_pattern))
+            self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
+            return len(self.redis_connection.keys(key_pattern))
         except Exception as e:
             logger.error(f'[REDIS] {e}')
             return None
-
-    
