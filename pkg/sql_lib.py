@@ -120,10 +120,11 @@ class MSSQL(SQL):
             logger.error(f"Can`t connect to MSSQL server: {e}")
             return False
 
-class PGSQL(SQL):
+class PGSQL(PGChecker):
     
-    def __init__(self, db_name, db_host, db_port, db_username, db_password):
-        super().__init__(db_name, db_host, db_port, db_username, db_password)
+    def __init__(self, PGChecker, db_name):
+        super().__init__(PGChecker.db_host, PGChecker.db_port, PGChecker.db_username, PGChecker.db_password)
+        self.db_name = db_name
     
     @logger.catch
     def backup(self, conf, engine, job_name,backup_dir, full_path, rotation, worker_name):
