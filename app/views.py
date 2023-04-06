@@ -608,6 +608,12 @@ def get_edit_object_data(request):
                 "remote_path": job.remote_path,
             })
 
+def get_databases(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        return JsonResponse({"status": "200" ,"databases": ["master","tembdb",'test','test2']})
+
+
 def start_job(request):
     if request.method == 'POST':
         data = json.loads(request.body)
