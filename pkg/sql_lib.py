@@ -21,6 +21,8 @@ from loguru import logger
 from pkg.db_connection import get_db_info, db_write_backup_info, db_delete_backup_info, check_path_in_backupinfo
 from sqlalchemy import create_engine
 from pkg.sec import Cryptorator
+from pkg.redis_lib import RedisHandler
+from pkg.config import MasterConfig 
 
 @logger.catch          
 def send_error_to_redis(conf, job_name,timestamp, error):
@@ -53,13 +55,6 @@ def send_info_to_redis(conf, key, job_name,status, timestamp, db_name, db_host, 
     except Exception as e:
         logger.error(f'[REDIS] {e}')
 
-@logger.catch
-def del_info_into_redis(conf, key):
-    redis_connect = redis.StrictRedis.from_url(conf.redis_url+"/0", decode_responses=True)
-    try:
-        redis_connect.delete(key)
-    except Exception as e:
-        logger.error(f'[REDIS] {e}')
 
 @logger.catch 
 def check_file_count(path, rotation):
@@ -73,6 +68,8 @@ class SQL:
         self.db_port = db_port
         self.db_username = db_username
         self.db_password = db_password
+        self.conf = MasterConfig()
+        self.redis_handler = RedisHandler(self.conf.redis_url)
 
     @logger.catch
     def check_connection(self):
@@ -99,7 +96,7 @@ class MSSQL(SQL):
             logger.info(f"[{worker_name}] Successfully backuped {self.db_host} from {self.db_host}")
             send_info_to_redis(conf, worker_name, job_name, "success", str(datetime.datetime.now()), "all", self.db_host, False)
             sleep(5)
-            del_info_into_redis(conf, worker_name)
+            self.redis_handler.del_info_into_redis(self, self.conf.redis_worker_database, worker_name)
             cur.close()
             conn.close()
         except Exception as e:
@@ -154,7 +151,7 @@ class PGSQL(SQL):
                 logger.info(f"[{worker_name}] Successfully backuped {self.db_host} from {self.db_host}")
                 send_info_to_redis(conf, worker_name, job_name, "success", str(datetime.datetime.now()), "all", self.db_host, False)
                 sleep(5)
-                del_info_into_redis(conf, worker_name)
+                self.redis_handler.del_info_into_redis(self, self.conf.redis_worker_database, worker_name)
                 while check_file_count(backup_dir, rotation): 
                     files = list(Path(backup_dir).iterdir())
                     files.sort()
@@ -190,7 +187,7 @@ class PGSQL(SQL):
                 logger.info(f"[{worker_name}] Successfully backuped {self.db_host} from {self.db_host}")
                 send_info_to_redis(conf, worker_name, job_name, "success", str(datetime.datetime.now()), self.db_host, self.db_host, False)
                 sleep(5)
-                del_info_into_redis(conf, worker_name)
+                self.redis_handler.del_info_into_redis(self, self.conf.redis_worker_database, worker_name)
                 while check_file_count(backup_dir, rotation): 
                     files = list(Path(backup_dir).iterdir())
                     files.sort()
@@ -235,6 +232,7 @@ class MYSQL(SQL):
     
     def __init__(self, db_name, db_host, db_port, db_username, db_password):
         super().__init__(db_name, db_host, db_port, db_username, db_password)
+        
     
     @logger.catch
     def backup(self, conf, engine, job_name, backup_dir, full_path, rotation, worker_name, backup_type):
@@ -274,7 +272,7 @@ class MYSQL(SQL):
                 db_delete_backup_info(engine, str(files[0]))
                 logger.info(f"[{worker_name}] Old backup deleted")
             sleep(5)
-            del_info_into_redis(conf, worker_name)
+            self.redis_handler.del_info_into_redis(self, self.conf.redis_worker_database, worker_name)
         popen.stdout.close()
         popen.stderr.close()
 
