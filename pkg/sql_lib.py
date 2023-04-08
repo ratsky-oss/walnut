@@ -24,24 +24,6 @@ from pkg.sec import Cryptorator
 from pkg.redis_lib import RedisHandler
 from pkg.config import MasterConfig 
 
-
-def send_info_to_redis(conf, key, job_name,status, timestamp, db_name, db_host, expired):
-    redis_connect = redis.StrictRedis.from_url(conf.redis_url+"/0", decode_responses=True)
-    try:
-        worker_info = {
-        "job_name": job_name, 
-        "worker_status": status,
-        "timestamp": timestamp,
-        "db_name": db_name,
-        "db_host": db_host
-        }
-        redis_connect.hmset(key,  worker_info)
-        if expired == True:
-            redis_connect.expire(name = key, time=86400)
-    except Exception as e:
-        logger.error(f'[REDIS] {e}')
-
-
 @logger.catch 
 def check_file_count(path, rotation):
     return False if len(list(Path(path).iterdir())) <= rotation else True
@@ -80,7 +62,13 @@ class MSSQL(SQL):
             cur = conn.cursor()
             backup = cur.execute(f"BACKUP DATABASE [{ self.db_name }] TO DISK = N'{full_path}' WITH BUFFERCOUNT = 2200,BLOCKSIZE = 32768,INIT,SKIP,NOREWIND,NOUNLOAD")
             logger.info(f"[{worker_name}] Successfully backuped {self.db_host} from {self.db_host}")
-            send_info_to_redis(conf, worker_name, job_name, "success", str(datetime.datetime.now()), "all", self.db_host, False)
+            self.redis_handler.send_info_to_redis(self, self.conf.redis_worker_database, worker_name, {
+                                                    "job_name": job_name, 
+                                                    "worker_status": "success",
+                                                    "timestamp": str(datetime.datetime.now()),
+                                                    "db_name": "all",
+                                                    "db_host": self.db_host
+                                                })
             sleep(5)
             self.redis_handler.del_info_into_redis(self, self.conf.redis_worker_database, worker_name)
             cur.close()
@@ -89,7 +77,13 @@ class MSSQL(SQL):
             logger.error(f"[{worker_name}] {e}")
             db_delete_backup_info(engine, full_path)
             self.redis_handler.send_error_to_redis(self, self.conf.redis_error_database, job_name, str(datetime.datetime.now()), f"[{worker_name}] {e}")
-            send_info_to_redis(conf, worker_name, job_name, "error", str(datetime.datetime.now()), "all", self.db_host, True)
+            self.redis_handler.send_info_to_redis(self, self.conf.redis_worker_database, worker_name, {
+                                                    "job_name": job_name, 
+                                                    "worker_status": "error",
+                                                    "timestamp": str(datetime.datetime.now()),
+                                                    "db_name": "all",
+                                                    "db_host": self.db_host
+                                                }, True)
         
 
     @logger.catch
@@ -132,10 +126,22 @@ class PGSQL(SQL):
                 os.remove(full_path)
                 db_delete_backup_info(engine, full_path)
                 self.redis_handler.send_error_to_redis(self, self.conf.redis_error_database, job_name, str(datetime.datetime.now()), f"[{worker_name}] {err_message}")
-                send_info_to_redis(conf, worker_name, job_name, "error", str(datetime.datetime.now()), "all", self.db_host, True)
+                self.redis_handler.send_info_to_redis(self, self.conf.redis_worker_database, worker_name, {
+                                                    "job_name": job_name, 
+                                                    "worker_status": "error",
+                                                    "timestamp": str(datetime.datetime.now()),
+                                                    "db_name": "all",
+                                                    "db_host": self.db_host
+                                                }, True)
             else:
                 logger.info(f"[{worker_name}] Successfully backuped {self.db_host} from {self.db_host}")
-                send_info_to_redis(conf, worker_name, job_name, "success", str(datetime.datetime.now()), "all", self.db_host, False)
+                self.redis_handler.send_info_to_redis(self, self.conf.redis_worker_database, worker_name, {
+                                                    "job_name": job_name, 
+                                                    "worker_status": "success",
+                                                    "timestamp": str(datetime.datetime.now()),
+                                                    "db_name": "all",
+                                                    "db_host": self.db_host
+                                                })
                 sleep(5)
                 self.redis_handler.del_info_into_redis(self, self.conf.redis_worker_database, worker_name)
                 while check_file_count(backup_dir, rotation): 
@@ -168,10 +174,22 @@ class PGSQL(SQL):
                 os.remove(full_path)
                 db_delete_backup_info(engine, full_path)
                 self.redis_handler.send_error_to_redis(self, self.conf.redis_error_database, job_name, str(datetime.datetime.now()), f"[{worker_name}] {err_message}")
-                send_info_to_redis(conf, worker_name, job_name, "error", str(datetime.datetime.now()), self.db_host, self.db_host, True)
+                self.redis_handler.send_info_to_redis(self, self.conf.redis_worker_database, worker_name, {
+                                                    "job_name": job_name, 
+                                                    "worker_status": "error",
+                                                    "timestamp": str(datetime.datetime.now()),
+                                                    "db_name": self.db_name,
+                                                    "db_host": self.db_host
+                                                }, True)
             else:
-                logger.info(f"[{worker_name}] Successfully backuped {self.db_host} from {self.db_host}")
-                send_info_to_redis(conf, worker_name, job_name, "success", str(datetime.datetime.now()), self.db_host, self.db_host, False)
+                logger.info(f"[{worker_name}] Successfully backuped {self.db_name} from {self.db_host}")
+                self.redis_handler.send_info_to_redis(self, self.conf.redis_worker_database, worker_name, {
+                                                    "job_name": job_name, 
+                                                    "worker_status": "success",
+                                                    "timestamp": str(datetime.datetime.now()),
+                                                    "db_name": self.db_name,
+                                                    "db_host": self.db_host
+                                                })
                 sleep(5)
                 self.redis_handler.del_info_into_redis(self, self.conf.redis_worker_database, worker_name)
                 while check_file_count(backup_dir, rotation): 
@@ -247,10 +265,22 @@ class MYSQL(SQL):
             os.remove(full_path)
             db_delete_backup_info(engine, full_path)
             self.redis_handler.send_error_to_redis(self, self.conf.redis_error_database, job_name, str(datetime.datetime.now()), f"[{worker_name}] {err_message}")
-            send_info_to_redis(conf, worker_name, job_name, "error", str(datetime.datetime.now()), backup_type, self.db_host, True)
+            self.redis_handler.send_info_to_redis(self, self.conf.redis_worker_database, worker_name, {
+                                                    "job_name": job_name, 
+                                                    "worker_status": "error",
+                                                    "timestamp": str(datetime.datetime.now()),
+                                                    "db_name": backup_type,
+                                                    "db_host": self.db_host
+                                                }, True)
         else:
             logger.info(f"[{worker_name}] Successfully backuped {self.db_host} from {self.db_host}")
-            send_info_to_redis(conf, worker_name, job_name, "success", str(datetime.datetime.now()), backup_type, self.db_host, False)
+            self.redis_handler.send_info_to_redis(self, self.conf.redis_worker_database, worker_name, {
+                                                    "job_name": job_name, 
+                                                    "worker_status": "success",
+                                                    "timestamp": str(datetime.datetime.now()),
+                                                    "db_name": backup_type,
+                                                    "db_host": self.db_host
+                                                })
             while check_file_count(backup_dir, rotation): 
                 files = list(Path(backup_dir).iterdir())
                 files.sort()
