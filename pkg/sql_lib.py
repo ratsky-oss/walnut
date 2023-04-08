@@ -16,6 +16,9 @@ import os
 import urllib
 from pathlib import Path
 from time import sleep
+import psycopg2
+import mariadb
+import netifaces as ni
 
 from loguru import logger
 from pkg.db_connection import get_db_info, db_write_backup_info, db_delete_backup_info, check_path_in_backupinfo
@@ -66,20 +69,50 @@ def check_file_count(path, rotation):
     return False if len(list(Path(path).iterdir())) <= rotation else True
 
 class SQL:
+    '''
+        2 main constructors:
+            (SQL class, database name)
+            or
+            (database name(optional), database host, database posrt, database username, database userpasswd)
+    '''
     
-    def __init__(self, db_name, db_host, db_port, db_username, db_password):
-        self.db_name = db_name
-        self.db_host = db_host 
-        self.db_port = db_port
-        self.db_username = db_username
-        self.db_password = db_password
 
+    def __init__(self, *args):
+        if len(args) == 2:
+            self.db_host = args[0].db_host 
+            self.db_port = args[0].db_port
+            self.db_username = args[0].db_username
+            self.db_password = args[0].db_password
+            self.db_name = args[1]
+        elif len(args) == 4:
+            self.db_host = args[0] 
+            self.db_port = args[1]
+            self.db_username = args[2]
+            self.db_password = args[3]
+        elif len(args) == 5:
+            self.db_name = args[0]
+            self.db_host = args[1] 
+            self.db_port = args[2]
+            self.db_username = args[3]
+            self.db_password = args[4]
+            
     @logger.catch
     def check_connection(self):
         c = Cryptorator() 
         self.db_password = c.decrypt(str(self.db_password))
         del c
 
+    @logger.catch
+    def _decrypt_passwd(self):
+        try:
+            c = Cryptorator() 
+            passwd = c.decrypt(str(self.db_password))
+            del c
+            return passwd
+        except:
+            logger.warning("Password decryption failed, passing bare string")
+            return self.db_password
+        
 class MSSQL(SQL):
     
     def __init__(self, remote_path, db_name, db_host, db_port, db_username, db_password):
@@ -92,7 +125,7 @@ class MSSQL(SQL):
         full_path = f"{self.remote_path}/mssql_{self.db_name}_{datetime.datetime.now().strftime('%Y_%m_%d_%H:%M:%S')}.bak"
         db_write_backup_info(engine, worker_name.split("_")[-1], full_path)
         try:
-            conn = pyodbc.connect('DRIVER={FreeTDS};'+f'SERVER={ self.db_host };PORT={ self.db_port };DATABASE={ self.db_name };UID={ self.db_username };PWD={ self.db_password };TrustServerCertificate=yes;')
+            conn = pyodbc.connect('DRIVER={FreeTDS};'+f'SERVER={ self.db_host };PORT={ self.db_port };DATABASE={ self.db_name };UID={ self.db_username };PWD={ self._decrypt_passwd() };TrustServerCertificate=yes;')
             conn.autocommit = True
             cur = conn.cursor()
             backup = cur.execute(f"BACKUP DATABASE [{ self.db_name }] TO DISK = N'{full_path}' WITH BUFFERCOUNT = 2200,BLOCKSIZE = 32768,INIT,SKIP,NOREWIND,NOUNLOAD")
@@ -111,20 +144,15 @@ class MSSQL(SQL):
 
     @logger.catch
     def check_connection(self):
-        super().check_connection()
         try:
-            pyodbc.connect('DRIVER={FreeTDS};'+f'SERVER={ self.db_host };PORT={ self.db_port };DATABASE={ self.db_name };UID={ self.db_username };PWD={ self.db_password };TrustServerCertificate=yes;')
+            pyodbc.connect('DRIVER={FreeTDS};'+f'SERVER={ self.db_host };PORT={ self.db_port };DATABASE={ self.db_name };UID={ self.db_username };PWD={ self._decrypt_passwd() };TrustServerCertificate=yes;')
             #pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};'+f'SERVER={ self.db_host };PORT={ self.db_port };DATABASE={ self.db_name };UID={ self.db_username };PWD={ self.db_password };TrustServerCertificate=yes;')
             return True
         except Exception as e:
             logger.error(f"Can`t connect to MSSQL server: {e}")
             return False
 
-class PGSQL(PGChecker):
-    
-    def __init__(self, PGChecker, db_name):
-        super().__init__(PGChecker.db_host, PGChecker.db_port, PGChecker.db_username, PGChecker.db_password)
-        self.db_name = db_name
+class PGSQL(SQL):
     
     @logger.catch
     def backup(self, conf, engine, job_name,backup_dir, full_path, rotation, worker_name):
@@ -206,22 +234,21 @@ class PGSQL(PGChecker):
     def create_file_pgpass(self, worker_name):
         try:
             with open(f"/tmp/walnut/.{worker_name}",'w') as file:
-                file.write(f"{self.db_host}:{self.db_port}:*:{self.db_username}:{self.db_password}")
+                file.write(f"{self.db_host}:{self.db_port}:*:{self.db_username}:{self._decrypt_passwd()}")
             os.chmod(f"/tmp/walnut/.{worker_name}", 0o600)
         except Exception as e:
             logger.error(f'[FILE SYSTEM] {e}')
 
     @logger.catch
     def check_connection(self):
-        super().check_connection()
-
+        
         if self.db_name == "all":
             db_name = 'postgres'
         else: 
             db_name = self.db_name
 
         dst_url=f'postgresql+psycopg2://{urllib.parse.quote(self.db_username)}:' +\
-            f'{urllib.parse.quote(self.db_password)}@' +\
+            f'{urllib.parse.quote(self._decrypt_passwd())}@' +\
             f'{urllib.parse.quote(self.db_host)}:' +\
             f'{urllib.parse.quote(str(self.db_port))}/' +\
             f'{urllib.parse.quote(db_name)}'
@@ -230,13 +257,79 @@ class PGSQL(PGChecker):
             engine.connect()
             return True
         except Exception:
-            return False    
+            return False
+           
+    @logger.catch
+    def check_dump_permissions(self):
+        try:
+            conn = psycopg2.connect(database='postgres', user=self.db_username, password=self._decrypt_passwd(), host=self.db_host, port=self.db_port)
+        except psycopg2.OperationalError:
+            logger.warning(f"Couldn't connect to psql://{self.db_username}:0_o@{self.db_host}:{self.db_port}/postgres")
+            return None
+        
+        cur = conn.cursor()
 
+        cur.execute("SELECT datname FROM pg_database WHERE datistemplate = false")
+        databases = cur.fetchall()
+        allowed_databases = []
+
+        for db in databases:
+            cur.execute("SELECT has_database_privilege(%s, %s, 'CONNECT')", (self.db_username, db[0]))
+            has_connect_privilege = cur.fetchone()[0]
+
+            if has_connect_privilege:
+                allowed_databases.append(db[0])
+
+        if len(allowed_databases) == len(databases):
+            allowed_databases.append('all')
+        
+        logger.debug(f"psql://{self.db_username}:0_o@{self.db_host}:{self.db_port} can dump the following databases: {allowed_databases}")
+        return sorted(allowed_databases)
+     
 class MYSQL(SQL):
-    
-    def __init__(self, db_name, db_host, db_port, db_username, db_password):
-        super().__init__(db_name, db_host, db_port, db_username, db_password)
-    
+
+    def check_dump_permissions(self):
+        conn_params= {
+            "user" : self.db_username,
+            "password" : self._decrypt_passwd(),
+            "host" : self.db_host,
+            "port" : int(self.db_port)
+        }
+        cnx = mariadb.connect(**conn_params)
+        cursor = cnx.cursor()
+        cursor.execute("SHOW DATABASES")
+        databases = [row[0] for row in cursor.fetchall()]
+        targets= []
+        for database in databases:
+            if self.has_database_privileges(database, cursor):
+                targets.append(database)
+        cursor.close()
+        cnx.close()
+        if len(targets) == len (databases):
+            targets.append("all")
+            targets.sort()
+            return targets
+        elif targets:
+            return targets
+        else:
+            return None
+
+    def has_database_privileges(self, database, cursor):
+        cursor.execute("SHOW GRANTS FOR %s@%s", (self.db_username, '%'))
+        grants1 = [grant[0] for grant in cursor.fetchall()]
+        for grant in grants1:
+            if grant.startswith(f"GRANT ALL PRIVILEGES ON *.*") or grant.startswith(f"GRANT ALL PRIVILEGES ON {database}.*") or grant.startswith(f"GRANT SELECT, LOCK TABLES, SHOW VIEW ON {database}.*"):
+                return True
+        for interface in ni.interfaces():
+            addrs = ni.ifaddresses(interface).get(ni.AF_INET)
+            if addrs:
+                cursor.execute("SHOW GRANTS FOR %s@%s", (self.db_username, addrs[0]['addr']))
+                grants2 = [grant[0] for grant in cursor.fetchall()]
+                for grant in grants2:
+                    if grant.startswith(f"GRANT ALL PRIVILEGES ON *.*") or grant.startswith(f"GRANT ALL PRIVILEGES ON {database}.*") or grant.startswith(f"GRANT SELECT, LOCK TABLES, SHOW VIEW ON {database}.*"):
+                        return True
+        return False 
+
     @logger.catch
     def backup(self, conf, engine, job_name, backup_dir, full_path, rotation, worker_name, backup_type):
         logger.info("Start backup MYSQL")
@@ -248,7 +341,7 @@ class MYSQL(SQL):
                                             f"--host={self.db_host}",
                                             f"--port={self.db_port}",
                                             f"--user={self.db_username}",
-                                            f"--password={self.db_password}",
+                                            f"--password={self._decrypt_passwd()}",
                                             backup_type,
                                         ], 
                                         stdout=subprocess.PIPE,
@@ -281,7 +374,6 @@ class MYSQL(SQL):
 
     @logger.catch
     def check_connection(self):
-        super().check_connection()
 
         if self.db_name == "all":
             db_name = 'mysql'
@@ -289,7 +381,7 @@ class MYSQL(SQL):
             db_name = self.db_name
 
         dst_url=f'mysql+mariadbconnector://{urllib.parse.quote(self.db_username)}:' +\
-            f'{urllib.parse.quote(self.db_password)}@' +\
+            f'{urllib.parse.quote(self._decrypt_passwd())}@' +\
             f'{urllib.parse.quote(self.db_host)}:' +\
             f'{urllib.parse.quote(str(self.db_port))}/' +\
             f'{urllib.parse.quote(db_name)}'
@@ -300,3 +392,13 @@ class MYSQL(SQL):
             return True
         except Exception as e:
             return False 
+
+
+if __name__=="__main__":
+    # a = PGChecker("192.168.8.24","5432","aaa","qwe")
+    a = MYSQL("192.168.8.24","3306","root","qwert!@34")
+    # a = PGSQL("192.168.8.24","5432","boardsuser","boardsuser-password")
+    l=a.check_dump_permissions()
+    print(l)
+    b=MYSQL(a,"all")
+    print(b.check_connection())
