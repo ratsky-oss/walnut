@@ -13,7 +13,7 @@ code_quality:
   tags:
     - cq-sans-dind
   variables:
-    CODECLIMATE_DEBUG: "1"
+    # CODECLIMATE_DEBUG: "1"
     SOURCE_CODE: "/builds/ratsky/walnut/walnut/"
   services:
   artifacts:
