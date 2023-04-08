@@ -11,7 +11,6 @@ import datetime
 import pyodbc
 import subprocess
 import gzip
-import redis
 import os
 import urllib
 from pathlib import Path
@@ -21,11 +20,11 @@ import mariadb
 import netifaces as ni
 
 from loguru import logger
-from pkg.db_connection import get_db_info, db_write_backup_info, db_delete_backup_info, check_path_in_backupinfo
+from pkg.db_connection import db_write_backup_info, db_delete_backup_info
 from sqlalchemy import create_engine
 from pkg.sec import Cryptorator
 from pkg.redis_lib import RedisHandler
-from pkg.config import MasterConfig 
+from pkg.config import Config 
 
 @logger.catch 
 def check_file_count(path, rotation):
@@ -58,14 +57,8 @@ class SQL:
             self.db_port = args[2]
             self.db_username = args[3]
             self.db_password = args[4]
-        self.conf = MasterConfig()
+        self.conf = Config()
         self.redis_handler = RedisHandler(self.conf.redis_url)
-
-    @logger.catch
-    def check_connection(self):
-        c = Cryptorator() 
-        self.db_password = c.decrypt(str(self.db_password))
-        del c
 
     @logger.catch
     def _decrypt_passwd(self):
