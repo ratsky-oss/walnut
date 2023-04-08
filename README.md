@@ -1,11 +1,11 @@
-# Ratsky Walnut
+# Ratskt Walnut Backup
 
 <!-- ![alt text](docs/logo_gradient_square.svg "containers"){:height="100px" width="100px"} -->
 <img src="docs/logo_gradient_square.svg" alt="alt text" width="300" height="300">
 
 
 
-# Table of content
+# Table of contents
 
 - [Overview](#overview)
 - [Requirements](#requirements)
@@ -14,7 +14,7 @@
 - [Configuration](#configuration)
     - [Settings reference](#settings-reference) 
     - [Crucial settings](#crucial-settings)
-    - [App management](#app-management)
+    - [Service management](#service-management)
 - [Setting up a production service](#setting-up-a-production-service)
 - [Usage](#usage)
     - [Access the application](#access-the-application)
@@ -30,7 +30,7 @@ The **Ratsky Walnut** is a tool for **automatization and management of the backu
 
 The tool supports a wide range of SQL database platforms, including **MySQL**, **MariaDB**, **PostgreSQL**, and **Microsoft SQL Server**. 
 
-The main goal of the project is transforming your backup routine to a pleasant experience. Project was inspired via [backup/backup project](https://github.com/backup/backup) and rely on default backuping mechanisms such as the pg_dump and mysqldump utilities.
+The main goal of the project is to transform your backup routine to a pleasant experience. Project was inspired by [backup/backup project](https://github.com/backup/backup) and relies on default backuping mechanisms such as the pg_dump and mysqldump utilities.
 
 ### MSSQL
   <img src="docs/workflow-mssql.jpg" width="600" />
@@ -53,11 +53,11 @@ The main goal of the project is transforming your backup routine to a pleasant e
 - 2gb RAM
 - 64gb HDD
 
-> Note: CPU requirements depend on your setup and amount of databases need to be backuped at a time
+> Note: CPU requirements depend on your setup and amount of databases needed to be backuped at a time.
 
-> Note: HDD requirements depends on size of all backups you want to store on localhost.
+> Note: HDD requirements depend on size of all backups you want to store on localhost.
 
-### The following packages needed (or should be able to be installed):
+### Тhe following packages will be installed:
 
 - python3 (>= 3.8)
 - python3-distutils(>= 3.8)
@@ -149,8 +149,8 @@ You may skip [settings reference](#settings-reference) section and go right to [
     - **port** - the RMQ port
     - **queue_name** - the name of queue to use
   - **redis** - application internal queue settings
-    - **host** - redis database hostname/address
-    - **port** - redis database port
+    - **host** - the redis database hostname/address
+    - **port** - the redis database port
   - **worker** - the walnut-worker component settings
     - **log** -
       - **level** - log level
@@ -220,10 +220,10 @@ secret: gJos1W972c4gLn9UqCvV0lfNp_AvjN988NnW44Ef6sg=
 Some settings you should or might want to consider:
 
 - **main.backup_base_path** - **path on localhost where all backups will be stored.** You can connect a network folder configured on the OS side at this path to increase the data storage reliability."
-- **main.observer.max_apschedule_instances** - **number of scheduled jobs available.** Keep in mind that each additional instance of the **scheduler consumes system resources such as CPU and memory**, so setting this value too high might lead to performance issues. It's recommended to start with a low value, monitor system resources and increase the value as needed. **Default value - 30**.
-- **secret** - **the phrase is used for symmetric encryption of the target database password.** It is initialized during installation. After adding jobs, it **should not be changed**, as the passwords for the targeted data will not be usable in the future.
+- **main.observer.max_apschedule_instances** - **number of scheduled jobs available.** Keep in mind that each additional instance of the **scheduler consumes system resources such as CPU and memory**, so setting this value too high might lead to performance issues. It is recommended to start with a low value, monitor system resources and increase the value as needed. **Default value - 30**.
+- **secret** - **the phrase is used for symmetric encryption of the target database password.** It is initialized during installation. After adding jobs, it **should not be changed**, as the passwords of the targeted databases will become unavaliable.
 
-> Note: you may restore the application database from the dump while keeping the same **secret**. 
+> Note: you can restore the application database from the dump while keeping the same **secret**. 
 
 ---
 
@@ -250,16 +250,16 @@ In the initial startup we use a self-singed certificate with "walnut.ratsky.loca
 
 ### Others
 
-Following services should be accessed **only** from localhost:
+Following services should be accessed **only** from the localhost:
 - Redis
 - RabbitMQ
 - PostgreSQL
 
-We suggest changing the password for walnut user in all services listed above.
+We suggest changing the password for walnut user on all services listed above.
 
 > Note: Ratsky Walnut was designed to work **inside local network only**
 
-## App management
+## Service management
 
 Some frequent application structure concepts. If you are interested in application structure, feel free to [contact us](#contact).
 <br>
@@ -276,7 +276,7 @@ And four additional components:
 
 For correct application usage all component should be running.
 
-To make all component run at once use the walnut.target
+To manipulate all main Walnut components at the same time use the walnut.target.
 ```
 sudo systemctl start walnut.target
 ```
@@ -289,10 +289,10 @@ Alternatively, you can manipulate application via the walnut-django.service, the
 # Usage
 ## Access the application
 
-Right after installation you should be able to access the application from the browser
+Right after the installation you should be able to access the application from the browser
 **https://{your_ip_address}/walnut/** unless you change nginx configuration.
 
-Default certificate won't be valid. To explore app accept certificate. Just make sure to come back to [setting up production section](#setting-up-a-production-service).
+The Default certificate will not be valid. To explore the application accept certificate. Just make sure to come back to [setting up production section](#setting-up-a-production-service).
 
 First access:
 ```
@@ -300,7 +300,7 @@ username: admin
 password: admin
 ```
 
-> Right after first login navigate to Settings -> Users
+> Right after the first login navigate to Settings -> Users
 <br>**Create** new user **or change** admin password at least
 
 ## Main concepts
@@ -323,7 +323,7 @@ To configure a DMS profile, go to the DMS page, click 'Add DMS' button and fill 
 - Username - user with right permissions
 - Password - user's password
 
-> Note: DMS should be accessible from ratsky walnut host
+> Note: DMS should be accessible from Ratsky Walnut host
 
 > Note: User should be able to READ (PostgreSQL/MySQL) or have BACKUP permissions (MSSQL) 
 
@@ -332,7 +332,7 @@ To configure a DMS profile, go to the DMS page, click 'Add DMS' button and fill 
 After configuring DMS profile, Jobs can be added:
 
 - Name - a job name. Must be unique.
-- Database name - name of the database in DMS to be backuped. Word "all" can be used to backup all databases in selected DMS.
+- Database name - name of the database in DMS to be backuped. Word "all" can be used to backup all databases in the selected DMS.
 - Action - currently only backup action is allowed.
 - DMS - a DMS profile.
 - Frequency - a cron schedule expression.
@@ -354,7 +354,7 @@ Ratsky Walnut is licensed under the GNU General Public License version 3.0 (GPL 
 
 In no event will the authors and contributors of the respective open source projects be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the app or the use or other dealings in the app.
 
-For more information on the GPL 3.0 license, please see the [LICENSE file](LICENSE) included with the app.
+For more information on the GPL 3.0 license, consult the [LICENSE file](LICENSE) included with the app.
 
 All third party license agreements could be found in the third_party_licenses directory.
 
