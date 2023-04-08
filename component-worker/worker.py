@@ -18,15 +18,9 @@ from sqlalchemy import create_engine
 from pkg.db_connection import get_db_info, check_path_in_backupinfo
 from pkg.config import WorkerConfig
 from pkg.sql_lib import MSSQL, PGSQL, MYSQL
+from pkg.redis_lib import RedisHandler
 
 worker_name = sys.argv[1]
-        
-@logger.catch
-def del_info_into_redis(redis_connect, key):
-    try:
-        redis_connect.delete(key)
-    except Exception as e:
-        logger.error(f'[REDIS] {e}')
 
 @logger.catch          
 def send_info_to_redis(redis_connect, key, job_name,status, timestamp, db_name, db_host):
@@ -103,11 +97,12 @@ def back_up(worker_name, engine):
             mssql = MSSQL(db_name = db_name, db_host = db_host, db_port = db_port, db_username = db_username, db_password = db_password, remote_path = remote_path)
             mssql.backup(engine, conf, worker_name, name)    
     else:
-        del_info_into_redis(redis_connect, worker_name)
+        redis_handler.del_info_into_redis(conf.redis_worker_database, worker_name)
         logger.error(f"[{worker_name}] Not started, backup exists")
     
 if __name__ == "__main__":
     conf = WorkerConfig()
+    redis_handler = RedisHandler(conf.redis_url)
     logger.add(conf.log_path, rotation=conf.log_rotation, level=conf.log_level)
     engine = create_engine(conf.db_url)
     back_up(worker_name, engine)
