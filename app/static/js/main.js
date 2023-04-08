@@ -76,7 +76,7 @@ $(document).ready(function(){
         });
     };
     $('.DMSChecker').change(function() {
-        var selectedId = $(".DMSChecker").find("option:selected").attr("dms_id");
+        var selectedId = $(this).find("option:selected").attr("dms_id");
         var $data = {"dms_id":selectedId};
         $.ajax({
             url: 'jobs/getDatabases',
@@ -101,13 +101,18 @@ $(document).ready(function(){
                     var hashtagText = $(this).text();
                     var input = $('input[data-role="tagsinput"]');
 
-                    input.tagsinput('add', hashtagText);
+                    input.tagsinput('add', "<span class='hashtags'>" + result.databases[i] + "</span>");
                     });
                 } else {
+                    hashtagDiv.empty();
+                    hashtagDiv.append("<span>Type your own databases</span>");
                     notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', ' ', result.error);
                 }
             },
             error: function(xhr, resp, text) {
+                var hashtagDiv = $(".hashtag_div");
+                hashtagDiv.empty();
+                hashtagDiv.append("<span>Type your own databases</span>");
                 notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Can not connect to walnut django server');
             }
         })

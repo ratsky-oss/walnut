@@ -172,7 +172,7 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                             <div class="input-group mb-3">
                                                 <select name="dst_db" class="form-control DMSChecker" id="JobFormDMSAdd">
                                                     {% for dms in dmses %}
-                                                        <option value="{{ dms.type }}" id="{{ dms.dst_db.id }}">{{ dms.type }}/{{ dms.dst_db.host }}</option>
+                                                        <option value="{{ dms.type }}" dms_id="{{ dms.id }}" id="{{ dms.dst_db.id }}">{{ dms.type }}/{{ dms.dst_db.host }}</option>
                                                     {% endfor %}
                                                 </select>
                                                 <div class="input-group-append">
