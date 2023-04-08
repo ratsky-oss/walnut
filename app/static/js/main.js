@@ -76,6 +76,8 @@ $(document).ready(function(){
         });
     };
     $('.DMSChecker').change(function() {
+        var selectedId = $(".DMSChecker").find("option:selected").attr("dms_id");
+        var $data = {"dms_id":selectedId};
         $.ajax({
             url: 'jobs/getDatabases',
             type: "POST",
@@ -89,8 +91,6 @@ $(document).ready(function(){
                 if (result.status == "200") {
                     var hashtagDiv = $(".hashtag_div");
                     hashtagDiv.empty();
-                    hashtagDiv.append("<span>Databases:</span>")
-                    hashtagDiv.append("<span class='btn btn-primary hashtags'>all</span>")
                     for (var i = 0; i < result.databases.length; i++) {
                         var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
                         hashtagDiv.append(newSpan);
@@ -111,7 +111,7 @@ $(document).ready(function(){
                 notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Can not connect to walnut django server');
             }
         })
-        
+
         // если выбрана определенная опция, показываем extraField
         if ($(this).val().split('/')[0] === 'mssql') {
             $('.mssql-extra-field').show();
@@ -339,8 +339,6 @@ $(document).ready(function(){
                 if (result.status == "200") {
                     var hashtagDiv = $(".hashtag_div");
                     hashtagDiv.empty();
-                    hashtagDiv.append("<span>Databases:</span>")
-                    hashtagDiv.append("<span class='hashtags btn btn-primary hashtags'>all</span>")
                     for (var i = 0; i < result.databases.length; i++) {
                         var newSpan = $("<span class='hashtags btn btn-primary hashtags'>" + result.databases[i] + "</span>");
                         hashtagDiv.append(newSpan);

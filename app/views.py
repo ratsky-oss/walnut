@@ -417,7 +417,7 @@ def get_form_add_dms(request):
             dms.dst_db = DestinationDatabase.objects.filter(id=dms.dst_db.id).first()
             del c
         except Exception as e:
-            return JsonResponse({"status":"500","error": "Can not update DMS"})
+            return JsonResponse({"status":"500","error": f" {e}"})
         return JsonResponse({"status":"200"})
     else:
         return JsonResponse({"status":"500","error": " Bad request"})
@@ -610,9 +610,11 @@ def get_edit_object_data(request):
 def get_databases(request):
     if request.method == 'POST':
         data = json.loads(request.body)
+        print(data)
         dms = DMSInfo.objects.filter(id=data["dms_id"]).first()
-        ddb = DestinationDatabase.objects.filter(id=dms.dst_db.id).first()
+        print(dms)
         type = dms.type
+        ddb = dms.dst_db
         if type == "mssql":
             db=MSSQL(ddb.host, ddb.port, ddb.username, ddb.password)
         if type == "postgres":

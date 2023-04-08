@@ -10570,6 +10570,8 @@ div.code-toolbar > .toolbar span:hover {
 }
 
 .hashtags{
+  background-color: #97a8b0;
+  border-color: #97a8b0;
   cursor: pointer;
   padding: 0% 2px 0% 2px;
   margin: 0 5px 0 5px;
