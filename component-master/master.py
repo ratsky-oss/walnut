@@ -62,7 +62,7 @@ def callback(ch, method, properties, body):
     if check_worker_count(conf.max_worker):
         logger.info("Starting new worker")
         try:
-            popen = subprocess.Popen(['opt/venvs/walnut/bin/python', 'opt/venvs/walnut/bin/worker.py', f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            popen = subprocess.Popen(['/home/nshvora/walnut/env/bin/python', '/home/nshvora/walnut/component-worker/worker.py', f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         except Exception as e:
             logger.error(f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
             redis_handler.send_error_to_redis(conf.redis_error_database, f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}", str(datetime.datetime.now()), f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
@@ -70,7 +70,7 @@ def callback(ch, method, properties, body):
         while not(check_worker_count(conf.max_worker)):
             sleep(5)
         try:
-            popen = subprocess.Popen(['opt/venvs/walnut/bin/python', 'opt/venvs/walnut/bin/worker.py', f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            popen = subprocess.Popen(['/home/nshvora/walnut/env/bin/python', '/home/nshvora/walnut/component-worker/worker.py', f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         except Exception as e:
             logger.error(f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
             redis_handler.send_error_to_redis(conf.redis_error_database, f"arkadiy_{worker_count}_{rabbitmq_message['job_id']}", str(datetime.datetime.now()), f"[arkadiy_{worker_count}_{rabbitmq_message['job_id']}] {e}")
