@@ -610,9 +610,7 @@ def get_edit_object_data(request):
 def get_databases(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        print(data)
         dms = DMSInfo.objects.filter(id=data["dms_id"]).first()
-        print(dms)
         type = dms.type
         ddb = dms.dst_db
         if type == "mssql":
@@ -621,7 +619,13 @@ def get_databases(request):
             db=PGSQL(ddb.host, ddb.port, ddb.username, ddb.password)
         if type == "mysql":
             db=MYSQL(ddb.host, ddb.port, ddb.username, ddb.password)
-        return JsonResponse({"status": "200" ,"databases": db.check_dump_permissions()})
+        try:
+            databases=db.check_dump_permissions()
+            if databases == None:
+                return JsonResponse({"status":"450", "warning": "Could not find suggestions for DMS"})
+        except:
+            return JsonResponse({"status":"450", "warning": "Something go wrong, check your DMS user privelleges"})
+        return JsonResponse({"status": "200" ,"databases": databases})
 
 def start_job(request):
     if request.method == 'POST':
