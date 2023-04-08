@@ -186,7 +186,6 @@ class Jobs_Page_View(BaseContextMixin, TemplateView ):
         context['dmses'] = DMSInfo.objects.all()
         return context
 
-
 class DMS_Page_View(BaseContextMixin, TemplateView ):
     
     template_name = 'dms.html'
