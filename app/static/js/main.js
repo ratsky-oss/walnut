@@ -76,6 +76,42 @@ $(document).ready(function(){
         });
     };
     $('.DMSChecker').change(function() {
+        $.ajax({
+            url: 'jobs/getDatabases',
+            type: "POST",
+            dataType: 'json',
+            data: JSON.stringify($data),
+            headers: {
+                'X-CSRFToken': getCookie("csrftoken"),
+            },
+            contentType: 'application/json;charset=UTF-8', // post data || get data
+            success : function(result) {
+                if (result.status == "200") {
+                    var hashtagDiv = $(".hashtag_div");
+                    hashtagDiv.empty();
+                    hashtagDiv.append("<span>Databases:</span>")
+                    hashtagDiv.append("<span class='btn btn-primary hashtags'>all</span>")
+                    for (var i = 0; i < result.databases.length; i++) {
+                        var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
+                        hashtagDiv.append(newSpan);
+                    }
+                    $('input[data-role="tagsinput"]').tagsinput();
+
+                    $('.hashtags').on('click', function() {
+                    var hashtagText = $(this).text();
+                    var input = $('input[data-role="tagsinput"]');
+
+                    input.tagsinput('add', hashtagText);
+                    });
+                } else {
+                    notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', ' ', result.error);
+                }
+            },
+            error: function(xhr, resp, text) {
+                notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Can not connect to walnut django server');
+            }
+        })
+        
         // если выбрана определенная опция, показываем extraField
         if ($(this).val().split('/')[0] === 'mssql') {
             $('.mssql-extra-field').show();
