@@ -6,4 +6,6 @@ plugins:
         python:
           python_version: 3
 exclude_patterns:
-- "**/*.js"
+- "app/static/js/pages/*"
+- "app/static/js/pcoded.min.js"
+- "app/static/js/vendor-all.min.js"
