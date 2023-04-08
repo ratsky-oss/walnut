@@ -385,7 +385,7 @@ $(document).ready(function(){
         $(".deleteBackupAccept").on('click', function(){
             $backup_id = this.id.split('_')[1]
             $.ajax({
-                url: '/backup/optionsBackup',
+                url: 'optionsBackup',
                 type: "DELETE",
                 dataType: 'json',
                 data: JSON.stringify({'id':$backup_id}),
@@ -399,6 +399,38 @@ $(document).ready(function(){
                         notify('top', 'right', 'feather icon-layers', 'success', 'pass', 'pass', '', ' Backup deleted');
                     } else if (result.status == "450") {
                         $(`.backup_${$backup_id}`).remove()
+                        notify('top', 'right', 'feather icon-layers', 'warning', 'pass', 'pass', '', ' ' + result.error);
+                    } else {
+                        notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' ' + result.error);
+                    }
+                },
+                error: function(xhr, resp, text) {
+                    notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
+                }
+            })
+        });
+    });
+    $(".rcyncBackup").on('click', function(){
+        $(".rcyncBackup-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="rcyncBackup_${this.id}" class="btn btn-primary rcyncBackupAccept" data-dismiss="modal" aria-label="Close">Go</button`)
+        $(".rcyncBackupAccept").on('click', function(){
+            var $data = {};
+            $data['backup_id'] = this.id.split('_')[1]
+            $('#rcyncBackupForm').find ('input, textearea, select').each(function() {
+                $data[this.name] = $(this).val();
+            });
+            $.ajax({
+                url: 'rcync',
+                type: "POST",
+                dataType: 'json',
+                data: JSON.stringify($data),
+                headers: {
+                    'X-CSRFToken': getCookie("csrftoken"),
+                },
+                contentType: 'application/json;charset=UTF-8', // post data || get data
+                success : function(result) {
+                    if (result.status == "200") {
+                        notify('top', 'right', 'feather icon-layers', 'success', 'pass', 'pass', '',  result.message);
+                    } else if (result.status == "450") {
                         notify('top', 'right', 'feather icon-layers', 'warning', 'pass', 'pass', '', ' ' + result.error);
                     } else {
                         notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' ' + result.error);

@@ -29,7 +29,7 @@ import json
 import os
 import re
 
-from .functions import get_queue_len
+from .functions import get_queue_len, ssh_copy_file
 from pkg.config import Config, MasterConfig, WorkerConfig, ObserverConfig, DjangoConfig
 from pkg.db_connection import check_dst_db
 from pkg.sql_lib import MSSQL, PGSQL, MYSQL
@@ -612,7 +612,6 @@ def get_databases(request):
         data = json.loads(request.body)
         return JsonResponse({"status": "200" ,"databases": ["master","tembdb",'test','test2']})
 
-
 def start_job(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -623,3 +622,13 @@ def download_backup(request, id):
     backup = BackupInfo.objects.get(id=id)
     response = FileResponse(open(backup.fs_path, 'rb'))
     return response
+
+def get_ssh_copy_file(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        backup_path = BackupInfo.objects.get(id=data["backup_id"]).fs_path
+        status = ssh_copy_file(backup_path,  data["dst_path"],  data["ssh_user"],  data["ssh_password"],  data["ssh_host"],  data["ssh_port"])
+        if status["status"]:
+            return JsonResponse({"status":"200", "message": status["message"]})
+        else:
+            return JsonResponse({"status":"500", "error": status["message"]})
