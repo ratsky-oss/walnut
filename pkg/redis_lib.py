@@ -13,10 +13,12 @@ class RedisHandler:
         except Exception as e:
             logger.error(f'[REDIS] {e}')
 
-    def send_info_to_redis(self, db_number, key, message):
+    def send_info_to_redis(self, db_number, key, message, expired=False):
         try:
             self.redis_connection.connection_pool.connection_kwargs['db'] = db_number
             self.redis_connection.hmset(key, message)
+            if expired == True:
+                self.redis_connection.expire(name = key, time=86400)
             logger.debug(f"Send info to redis db:{db_number} key:{key} message:{message}")
         except Exception as e:
             logger.error(f'[REDIS] {e}')
