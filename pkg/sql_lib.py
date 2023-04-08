@@ -115,9 +115,96 @@ class SQL:
         
 class MSSQL(SQL):
     
-    def __init__(self, remote_path, db_name, db_host, db_port, db_username, db_password):
-        super().__init__(db_name, db_host, db_port, db_username, db_password)
-        self.remote_path = remote_path
+    def check_dump_permissions(self):
+        connection = pyodbc.connect('DRIVER={FreeTDS};'+f'SERVER={ self.db_host };PORT={ self.db_port }; UID={ self.db_username };PWD={ self._decrypt_passwd() };TrustServerCertificate=yes;')
+        cursor = connection.cursor()
+
+        query = """
+        SET NOCOUNT ON
+
+        DECLARE @DatabaseName NVARCHAR(128)
+        DECLARE @User NVARCHAR(128)
+        DECLARE @SQL NVARCHAR(MAX)
+        DECLARE @UserDatabases TABLE (DatabaseName NVARCHAR(128))
+        DECLARE @BackupableDatabases TABLE (DatabaseName NVARCHAR(128))
+
+        -- Получить имя текущего пользователя
+        SELECT @User = SUSER_NAME()
+
+        -- Получить список баз данных пользователя
+        INSERT INTO @UserDatabases (DatabaseName)
+        SELECT name
+        FROM sys.databases
+        WHERE owner_sid = SUSER_SID(@User) OR name = 'master'
+
+        -- Проверка наличия роли sysadmin
+        IF IS_SRVROLEMEMBER('sysadmin', @User) = 1
+        BEGIN
+            INSERT INTO @UserDatabases (DatabaseName)
+            SELECT name
+            FROM sys.databases
+        END
+
+        -- Проверка разрешений BACKUP DATABASE, CONTROL и CONNECT
+        DECLARE UserDatabasesCursor CURSOR FOR
+        SELECT DatabaseName
+        FROM @UserDatabases
+
+        OPEN UserDatabasesCursor
+
+        FETCH NEXT FROM UserDatabasesCursor
+        INTO @DatabaseName
+
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+            SET @SQL = 'USE ' + QUOTENAME(@DatabaseName) + ';
+                        DECLARE @HasBackupPermission INT;
+                        DECLARE @HasControlPermission INT;
+                        DECLARE @HasConnectPermission INT;
+                        SELECT @HasBackupPermission = COUNT(*)
+                        FROM sys.fn_my_permissions(NULL, ''DATABASE'')
+                        WHERE permission_name = ''BACKUP DATABASE'';
+                        SELECT @HasControlPermission = COUNT(*)
+                        FROM sys.fn_my_permissions(NULL, ''DATABASE'')
+                        WHERE permission_name = ''CONTROL'';
+                        SELECT @HasConnectPermission = COUNT(*)
+                        FROM sys.fn_my_permissions(NULL, ''DATABASE'')
+                        WHERE permission_name = ''CONNECT'';
+                        IF (@HasBackupPermission = 1) OR (@HasControlPermission = 1) AND (@HasConnectPermission = 1)
+                        BEGIN
+                            SELECT ''' + @DatabaseName + ''' AS DatabaseName
+                        END'
+
+            INSERT INTO @BackupableDatabases (DatabaseName)
+            EXEC sp_executesql @SQL
+
+            FETCH NEXT FROM UserDatabasesCursor
+            INTO @DatabaseName
+        END
+
+        CLOSE UserDatabasesCursor
+        DEALLOCATE UserDatabasesCursor
+
+        -- Вывести таблицу с базами данных, доступными для резервного копирования
+        SELECT * FROM @BackupableDatabases
+        """
+
+        cursor.execute(query)
+        
+        databases = cursor.fetchall()
+        accessible_databases = set([db[0] for db in databases])
+        all_databases = set([db[0] for db in databases])
+
+        if len(accessible_databases) == len(all_databases):
+            accessible_databases = list(accessible_databases)
+            accessible_databases.append("all")
+            accessible_databases.sort()
+            return accessible_databases
+        elif len(accessible_databases) > 0:
+            accessible_databases = list(accessible_databases)
+            return accessible_databases
+        else:
+            return None
     
     @logger.catch
     def backup(self, engine, conf, worker_name, job_name):
@@ -145,7 +232,11 @@ class MSSQL(SQL):
     @logger.catch
     def check_connection(self):
         try:
-            pyodbc.connect('DRIVER={FreeTDS};'+f'SERVER={ self.db_host };PORT={ self.db_port };DATABASE={ self.db_name };UID={ self.db_username };PWD={ self._decrypt_passwd() };TrustServerCertificate=yes;')
+            if self.db_name =="all":
+                db_name = "master"
+            else:
+                db_name = self.db_name
+            pyodbc.connect('DRIVER={FreeTDS};'+f'SERVER={ self.db_host };PORT={ self.db_port };DATABASE={ db_name };UID={ self.db_username };PWD={ self._decrypt_passwd() };TrustServerCertificate=yes;')
             #pyodbc.connect('DRIVER={ODBC Driver 18 for SQL Server};'+f'SERVER={ self.db_host };PORT={ self.db_port };DATABASE={ self.db_name };UID={ self.db_username };PWD={ self.db_password };TrustServerCertificate=yes;')
             return True
         except Exception as e:
@@ -395,10 +486,4 @@ class MYSQL(SQL):
 
 
 if __name__=="__main__":
-    # a = PGChecker("192.168.8.24","5432","aaa","qwe")
-    a = MYSQL("192.168.8.24","3306","root","qwert!@34")
-    # a = PGSQL("192.168.8.24","5432","boardsuser","boardsuser-password")
-    l=a.check_dump_permissions()
-    print(l)
-    b=MYSQL(a,"all")
-    print(b.check_connection())
+    pass
