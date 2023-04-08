@@ -1,6 +1,23 @@
 # Changelog
 
-## STABLE [0.1-4] - 2023-04-02 
+## [0.1-5] - 2023-04-02 
+
+
+### Added
+
+- Job database suggestions
+- Redis database config options
+- Rsync backups files from Backups page
+
+### Changed
+
+- Now Jobs is grouped by DMS profiles
+
+### Fixed
+
+- Fixed some error and warnings output
+
+## [0.1-4] - 2023-04-02 
 
 ### Fixed
 
