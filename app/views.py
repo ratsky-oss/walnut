@@ -15,6 +15,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.db import IntegrityError
 from django.utils import timezone
+from django.urls import reverse
 
 import sqlalchemy
 import psutil
@@ -28,13 +29,15 @@ import json
 import os
 import re
 
-from .functions import get_redis_len, get_queue_len
+from .functions import get_queue_len
 from pkg.config import Config, MasterConfig, WorkerConfig, ObserverConfig, DjangoConfig
 from pkg.db_connection import check_dst_db
 from pkg.sql_lib import MSSQL, PGSQL, MYSQL
 from pkg.sec import Cryptorator
 from app.models import DestinationDatabase, DMSInfo, Job, BackupInfo
 from pkg.status_lib import check_connection_telnet, process_running,  worker_status, worker_error
+from pkg.redis_lib import RedisHandler
+
 
 logger = logging.getLogger(__name__)
 #logger.debug('Log whatever you want')
@@ -75,7 +78,8 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
+
 
     def get_context_data(self, **kwargs):
         conf = Config()
@@ -83,10 +87,22 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
         conf_master = MasterConfig()
         worker_config = WorkerConfig()
         conf_observer = ObserverConfig()
+        redis_handler = RedisHandler(conf_master.redis_url)
         context = super().get_context_data(**kwargs)
         jobs = Job.objects.all()
-        redis_connect = redis.StrictRedis.from_url(conf.redis_url, decode_responses=True, db=0)
 
+        redis_connect = redis.StrictRedis.from_url(conf.redis_url, decode_responses=True, db=0)
+        redis_connect_error = redis.StrictRedis.from_url(conf.redis_url + "/1", decode_responses=True)
+        try:
+            worker_status_bufer =  worker_status(redis_connect)
+            worker_error_bufer = worker_error(redis_connect_error)
+            context["worker_status"] =  copy.deepcopy(worker_status_bufer)
+            for key,value in worker_status_bufer.items():
+                if value["worker_status"] == "error":
+                    context["worker_status"][key]["error_text"] = worker_error_bufer[value["job_name"]]["error_text"]
+        except  Exception as e:
+            context["worker_status"] = {}
+            
         try:
             context['disk'] = [ humanize.intcomma(int(psutil.disk_usage(worker_config.backup_base_path).free/(1024*1024))), 
                             humanize.intcomma(int(psutil.disk_usage(worker_config.backup_base_path).total/(1024*1024))),
@@ -131,21 +147,13 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
                 checker += 1
             if not process_running("master.py"):
                 checker += 1
-            context['critical_error_count'] = get_redis_len(conf.redis_url, 1) + checker
+            context['critical_error_count'] = redis_handler.get_redis_len(1) + checker
         except:
             context['critical_error_count'] = 666
         try:
             context['queue_len'] = get_queue_len(conf.rabbitmq_url, conf.rabbitmq_queue_name)
         except:
             context['queue_len'] = 0
-            
-            
-            
-            
-            
-            
-            
-
         context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
         context['max_worker_count'] = conf_master.max_worker
         context['shedular_count'] = len(jobs)
@@ -166,7 +174,7 @@ class Jobs_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
 
@@ -174,8 +182,8 @@ class Jobs_Page_View(BaseContextMixin, TemplateView ):
         jobs = Job.objects.all()
 
         
-        context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
-        context['dms'] = DMSInfo.objects.all()
+        # context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
+        context['dmses'] = DMSInfo.objects.all()
         return context
 
 class DMS_Page_View(BaseContextMixin, TemplateView ):
@@ -191,7 +199,7 @@ class DMS_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
 
@@ -214,7 +222,7 @@ class Backup_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
 
@@ -239,7 +247,7 @@ class Backup_Search_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
 
 
@@ -271,7 +279,7 @@ class Status_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
         conf = Config()
@@ -309,7 +317,7 @@ class Config_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
 
@@ -330,7 +338,7 @@ class Users_Page_View(BaseContextMixin, TemplateView ):
                 handler = self.http_method_not_allowed
             return handler(request, *args, **kwargs)
         else:
-            return redirect("/login")
+            return redirect(reverse('app:login_page'))
 
     def get_context_data(self, **kwargs):
 
@@ -370,12 +378,11 @@ class Logout_Page_View(BaseContextMixin, TemplateView ):
     def get_context_data(self, **kwargs):
 
         context = super().get_context_data(**kwargs)
-        
         return context
     
     def dispatch(self, request, *args, **kwargs):
         logout(request)
-        return redirect('/login')
+        return redirect(reverse('app:login_page'))
 
 def get_form_add_dms(request):
     if request.method == 'POST':
@@ -599,6 +606,12 @@ def get_edit_object_data(request):
                 "frequency":job.frequency,
                 "remote_path": job.remote_path,
             })
+
+def get_databases(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        return JsonResponse({"status": "200" ,"databases": ["master","tembdb",'test','test2']})
+
 
 def start_job(request):
     if request.method == 'POST':

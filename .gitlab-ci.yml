@@ -2,19 +2,31 @@
   tags:
     - walnut
     - build-stand
-  only: 
+  only:
     - dev
-    - master
+    - main
+    - fix_dev
+
+.package-builder: &package-builder
+  image: dh-venv-builder
+  tags:
+    # - ssh-docker
+    - docker
+    - walnut
+  only:
+    - dev
+    - main
+    - fix_dev
 
 
 stages:
+  # - ci-debug
   - build
-#   - test
   - deploy
   - healthcheck
 
 build-deb-package:
-  <<: *main-stand
+  <<: *package-builder
   stage: build
   script:
         - dpkg-buildpackage -us -uc -b
@@ -59,4 +71,4 @@ deploy-status:
     - sudo systemctl status walnut-django.service || journalctl -u walnut-django.service
   needs:
     - deploy
-  when: on_success 
+  when: on_success

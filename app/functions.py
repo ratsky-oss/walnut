@@ -12,10 +12,6 @@ import pika
 from pkg.config import Config
 
 
-def get_redis_len(redis_url, redis_db):
-    redis_connect = redis.StrictRedis.from_url(redis_url, decode_responses=True, db=redis_db)
-    return len(redis_connect.keys("arkadiy_*"))
-
 def get_queue_len(rabbitmq_url, rabbitmq_queue_name):
     connection = pika.BlockingConnection(pika.URLParameters(rabbitmq_url))
     channel = connection.channel()
