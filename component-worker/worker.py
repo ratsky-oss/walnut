@@ -20,36 +20,8 @@ from pkg.config import WorkerConfig
 from pkg.sql_lib import MSSQL, PGSQL, MYSQL
 from pkg.redis_lib import RedisHandler
 
+
 worker_name = sys.argv[1]
-
-@logger.catch          
-def send_info_to_redis(redis_connect, key, job_name,status, timestamp, db_name, db_host):
-    try:
-        worker_info = {
-        "job_name": job_name, 
-        "worker_status": status,
-        "timestamp": timestamp,
-        "db_name": db_name,
-        "db_host": db_host
-        }
-        redis_connect.hmset(key,  worker_info)
-    except Exception as e:
-        logger.error(f'[REDIS] {e}')
-
-@logger.catch          
-def send_error_to_redis(conf, job_name,timestamp, error):
-    try:
-        redis_connect = redis.StrictRedis.from_url(conf.redis_url+"/1", decode_responses=True)
-        error_info = {
-            "job_name": job_name,
-            "timestamp": timestamp,
-            "error": error,
-        }
-        key = len(redis_connect.keys())+1
-        redis_connect.hmset(key, error_info)
-        redis_connect.expire(name = key, time=86400)
-    except Exception as e:
-        logger.error(f'[REDIS] {e}')
 
 @logger.catch
 def create_file_mssql_backup(db_name, full_path, worker_name):
@@ -65,7 +37,7 @@ def check_file_count(path, rotation):
 
 @logger.catch
 def back_up(worker_name, engine):
-    redis_connect = redis.StrictRedis.from_url(conf.redis_url, decode_responses=True)
+
     db_info = get_db_info(engine, worker_name.split("_")[-1])
     db_host = db_info["connection"]["host"]
     db_port = db_info["connection"]["port"]
@@ -75,13 +47,27 @@ def back_up(worker_name, engine):
     db_name = db_info["connection"]["db_name"]
     name = db_info["job"]["name"]
     full_path = f'{conf.backup_base_path}/{name}/{dms_type}_{db_name}_{datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")}.gz'
-    send_info_to_redis(redis_connect, worker_name, name, "pending", str(datetime.datetime.now()), db_name, db_host)
+
+    redis_handler.send_info_to_redis(conf.redis_worker_database, worker_name, {
+                                                                    "job_name": name, 
+                                                                    "worker_status": "pending",
+                                                                    "timestamp": str(datetime.datetime.now()),
+                                                                    "db_name": db_name,
+                                                                    "db_host": db_host
+                                                                })
+    
     if not check_path_in_backupinfo(engine, full_path):# and check_path_in_filesystem()
         if not(os.path.exists(f'{conf.backup_base_path}/{name}')):
             os.mkdir(f'{conf.backup_base_path}/{name}')
         logger.info(f'[{worker_name}] start backuping {db_name} from {db_host}')
         logger.debug(f'[{worker_name}] start backuping {dms_type}')
-        send_info_to_redis(redis_connect, worker_name, name, "started", str(datetime.datetime.now()), db_name, db_host)
+        redis_handler.send_info_to_redis(conf.redis_worker_database, worker_name, {
+                                                                    "job_name": name, 
+                                                                    "worker_status": "started",
+                                                                    "timestamp": str(datetime.datetime.now()),
+                                                                    "db_name": db_name,
+                                                                    "db_host": db_host
+                                                                })
         if dms_type == "mysql":
             mysql = MYSQL(db_name, db_host, db_port, db_username, db_password)
             if db_name == "all":
