@@ -10,6 +10,7 @@ logging-tree==1.9
 loguru==0.6.0
 logx==0.1.1579232358
 mariadb==1.1.5.post3
+netifaces==0.11.0
 packaging==21.3
 paramiko==3.1.0
 psycopg2==2.9.4

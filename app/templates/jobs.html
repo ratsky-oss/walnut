@@ -89,18 +89,15 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                         <div class="form-group">
                                             <label>Database name</label>
                                             <input class="tagsinput" name="db_name" type="text"  value="all" data-role="tagsinput" />
-                                            <div class="hashtag_div">
-                                                <span>Databases:</span>
-                                                <span class="hashtags">all</span>
-                                            </div>
-                                            <p>You can`t add more than 1 database when editing!</p>
+                                            <div class="hashtag_div"></div>
+                                            <p>You can not work with more than one database when editing!</p>
                                         </div>
                                         <div class="form-group">
                                             <label for="JobFormControlSelect1">Select DMS</label>
                                             <div class="input-group mb-3">
                                                 <select name="dst_db" class="form-control editJobinput DMSChecker" id="JobFormDMSEdit">
                                                     {% for dms in dmses %}
-                                                        <option value="{{ dms.type }}" id="{{ dms.dst_db.id }}">{{ dms.type }}/{{ dms.dst_db.host }}</option>
+                                                        <option value="{{ dms.type }}" dms_id="{{ dms.id }}" id="{{ dms.dst_db.id }}">{{ dms.type }}/{{ dms.dst_db.host }}</option>
                                                     {% endfor %}
                                                 </select>
                                                 <div class="input-group-append">
@@ -161,10 +158,7 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                         <div class="form-group">
                                             <label>Database name</label>
                                             <input class="tagsinput" name="db_name" type="text"  value="all" data-role="tagsinput" />
-                                            <div class="hashtag_div">
-                                                <span>Databases:</span>
-                                                <span class="btn btn-primary hashtags">all</span>
-                                            </div>
+                                            <div class="hashtag_div"></div>
                                         </div>
                                         <div class="form-group">
                                             <label for="JobFormControlSelect1">Select action</label>

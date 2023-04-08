@@ -58,7 +58,7 @@ $(document).ready(function(){
         });
     };
     $(".AddJob").on('click', function(){
-        var selectedId = $(".DMSChecker").find("option:selected").attr("id");
+        var selectedId = $(".DMSChecker").find("option:selected").attr("dms_id");
         var $data = {"dms_id":selectedId};
         console.log(selectedId)
         // Отправка POST-запроса на сервер
@@ -76,8 +76,6 @@ $(document).ready(function(){
                 if (result.status == "200") {
                     var hashtagDiv = $(".hashtag_div");
                     hashtagDiv.empty();
-                    hashtagDiv.append("<span>Databases:</span>")
-                    hashtagDiv.append("<span class='btn btn-primary hashtags'>all</span>")
                     for (var i = 0; i < result.databases.length; i++) {
                         var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
                         hashtagDiv.append(newSpan);
@@ -236,7 +234,7 @@ $(document).ready(function(){
                 notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
             }
         })
-        var selectedId = $(".DMSChecker").find("option:selected").attr("id");
+        var selectedId = $(".DMSChecker").find("option:selected").attr("dms_id");
         var $data = {"dms_id":selectedId};
         console.log(selectedId)
         // Отправка POST-запроса на сервер
@@ -254,8 +252,6 @@ $(document).ready(function(){
                 if (result.status == "200") {
                     var hashtagDiv = $(".hashtag_div");
                     hashtagDiv.empty();
-                    hashtagDiv.append("<span>Databases:</span>")
-                    hashtagDiv.append("<span class='btn btn-primary hashtags'>all</span>")
                     for (var i = 0; i < result.databases.length; i++) {
                         var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
                         hashtagDiv.append(newSpan);
