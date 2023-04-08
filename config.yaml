@@ -3,6 +3,8 @@ main:
   redis:
     host: "localhost"
     port: "6379"
+    worker_database: 0
+    error_database: 1
     #username: "" 
     #password: ""
 

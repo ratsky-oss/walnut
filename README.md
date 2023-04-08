@@ -151,6 +151,8 @@ You may skip [settings reference](#settings-reference) section and go right to [
   - **redis** - application internal queue settings
     - **host** - the redis database hostname/address
     - **port** - the redis database port
+    - **worker_database** - the redis database to store worker information
+    - **error_database** - the redis database to store errors
   - **worker** - the walnut-worker component settings
     - **log** -
       - **level** - log level
@@ -198,6 +200,8 @@ main:
   redis:
     host: localhost
     port: '6379'
+    worker_database: 0
+    error_database: 1
 secret: gJos1W972c4gLn9UqCvV0lfNp_AvjN988NnW44Ef6sg=
 ```
 
