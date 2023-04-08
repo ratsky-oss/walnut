@@ -28,6 +28,7 @@ urlpatterns = [
     path('backup/', views.Backup_Page_View.as_view(), name="Backup_page"),
     path('backup/optionsBackup', views.get_form_add_backup, name="get_form_add_backup"),
     path('backup/download/<int:id>', views.download_backup, name="download_backup"),
+    path('backup/rcync', views.get_ssh_copy_file, name="rcync_backup"),
     path('status', views.Status_Page_View.as_view(), name="Status_page"),
     path('settings/config', views.Config_Page_View.as_view(), name="config_page"),
     path('settings/users', views.Users_Page_View.as_view(), name="users_page"),
