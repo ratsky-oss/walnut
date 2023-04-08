@@ -610,7 +610,16 @@ def get_edit_object_data(request):
 def get_databases(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        return JsonResponse({"status": "200" ,"databases": ["master","tembdb",'test','test2']})
+        dms = DMSInfo.objects.filter(id=data["dms_id"]).first()
+        ddb = DestinationDatabase.objects.filter(id=dms.dst_db.id).first()
+        type = dms.type
+        if type == "mssql":
+            db=MSSQL(ddb.host, ddb.port, ddb.username, ddb.password)
+        if type == "postgres":
+            db=PGSQL(ddb.host, ddb.port, ddb.username, ddb.password)
+        if type == "mysql":
+            db=MYSQL(ddb.host, ddb.port, ddb.username, ddb.password)
+        return JsonResponse({"status": "200" ,"databases": db.check_dump_permissions()})
 
 def start_job(request):
     if request.method == 'POST':

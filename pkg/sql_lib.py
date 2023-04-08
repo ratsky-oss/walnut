@@ -35,7 +35,7 @@ class SQL:
         2 main constructors:
             (SQL class, database name)
             or
-            (database name(optional), database host, database posrt, database username, database userpasswd)
+            (database name(optional), database host, database port, database username, database user passwd)
     '''
     
 
