@@ -500,7 +500,7 @@ def get_form_add_job(request):
                     return JsonResponse({"status":"500", "error": " Frequency error"})
                 job = Job.objects.filter(id=data["id"]).update(name=data["name"], dst_db=dst_db, db_name=data["db_name"], action= "b" if data["action"] == "backup" else "r", frequency=data["frequency"], rotation=data["rotation"])
             except Exception as e:
-                return JsonResponse({"status":"500", "error": " Critical server error"})
+                return JsonResponse({"status":"500", "error": f" Critical server error"})
             return JsonResponse({"status":"200"})
         else:
             return JsonResponse({"status":"500", "error":" Incorrect frequency format"})
@@ -599,7 +599,7 @@ def get_edit_object_data(request):
         else:
             job = Job.objects.filter(id=data["id"]).first()  
             return JsonResponse({
-                "dst_db": job.dst_db.dmsinfo_set.all().first().type,
+                "dms_id": job.dst_db.dmsinfo_set.all().first().id,
                 "name":job.name,
                 "db_name":job.db_name,
                 "rotation":job.rotation,
@@ -610,18 +610,22 @@ def get_edit_object_data(request):
 def get_databases(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        print(data)
         dms = DMSInfo.objects.filter(id=data["dms_id"]).first()
-        print(dms)
         type = dms.type
         ddb = dms.dst_db
         if type == "mssql":
-            db=MSSQL(ddb.host, ddb.port, ddb.username, ddb.password)
+            db=MSSQL(db_host = ddb.host, db_port = ddb.port, db_username = ddb.username, db_password = ddb.password)
         if type == "postgres":
-            db=PGSQL(ddb.host, ddb.port, ddb.username, ddb.password)
+            db=PGSQL(db_host = ddb.host, db_port = ddb.port, db_username = ddb.username, db_password = ddb.password)
         if type == "mysql":
-            db=MYSQL(ddb.host, ddb.port, ddb.username, ddb.password)
-        return JsonResponse({"status": "200" ,"databases": db.check_dump_permissions()})
+            db=MYSQL(db_host = ddb.host, db_port = ddb.port, db_username = ddb.username, db_password = ddb.password)
+        try:
+            databases=db.check_dump_permissions()
+            if databases == None:
+                return JsonResponse({"status":"450", "warning": "Could not find suggestions for DMS"})
+        except:
+            return JsonResponse({"status":"450", "warning": "Something go wrong, check your DMS user privelleges"})
+        return JsonResponse({"status": "200" ,"databases": databases})
 
 def start_job(request):
     if request.method == 'POST':

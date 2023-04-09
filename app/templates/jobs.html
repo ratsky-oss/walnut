@@ -33,7 +33,7 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                 </div>
                                 <div class="modal-body">
                                     {% csrf_token %}
-                                    <form id="AddDMSForm">
+                                    <form id="AddDMSForm" autocomplete="off">
                                         <div class="form-group">
                                             <label for="DMSFormControlSelect1">Select typen</label>
                                             <select name="type" class="form-control" id="DMSFormAction">
@@ -71,6 +71,70 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                             </div>
                         </div>
                     </div>
+                    <div id="AddJob" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="AddJobTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="AddJobTitle">Create Job</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="mssql-extra-field" style="color:red">When MSSQL is backed up, the files are saved to the MSSQL server, as well as the ability to download and rotation is disabled</p>
+                                    {% csrf_token %}
+                                    <form id="AddJobForm" autocomplete="off">
+                                        <div class="form-group">
+                                            <label>Name</label>
+                                            <input name="name" type="text" class="form-control" placeholder="prod-back1">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Database name</label>
+                                            <div class="spinner-border spinner-border-sm" role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                            <input class="tagsinput" name="db_name" type="text"  value="all" data-role="tagsinput" />
+                                            <div class="hashtag_div"></div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="JobFormControlSelect1">Select action</label>
+                                            <select name="action" class="form-control" id="JobFormAction">
+                                                <option>backup</option>
+                                                <!-- <option>restore</option> -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="JobFormControlSelect1">Select DMS</label>
+                                            <div class="input-group mb-3">
+                                                <select name="dst_db" class="form-control DMSChecker" id="JobFormDMSAdd">
+                                                    {% for dms in dmses %}
+                                                        <option value="{{ dms.type }}" dms_id="{{ dms.id }}" id="{{ dms.dst_db.id }}">{{ dms.type }}/{{ dms.dst_db.host }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#AddDMS" data-dismiss="modal">Add</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group mssql-extra-field">
+                                            <label>Remote backup path</label>
+                                            <input name="remote_path" type="text" class="form-control" placeholder="/path/to/backup" value="">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>rotation</label>
+                                            <input name="rotation" type="text" class="form-control" placeholder="10">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Frequency <a href="https://crontab.guru/">(Tap me)</a></label>
+                                            <input name="frequency" type="text" class="form-control" placeholder="* * * * *">
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                    <button type="submit" id="AddJobSubmit" class="btn btn-primary">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div id="editJob" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editJobTitle" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" role="document">
                             <div class="modal-content">
@@ -81,16 +145,26 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                 <div class="modal-body">
                                     {% csrf_token %}
                                     <p class="mssql-extra-field" style="color:red">When MSSQL is backed up, the files are saved to the MSSQL server, as well as the ability to download and rotation is disabled</p>
-                                    <form id="editJobForm">
+                                    <form id="editJobForm" autocomplete="off">
                                         <div class="form-group">
                                             <label>Name</label>
                                             <input name="name" type="text" class="form-control  editJobinput" placeholder="prod-back1">
                                         </div>
                                         <div class="form-group">
                                             <label>Database name</label>
+                                            <div class="spinner-border spinner-border-sm" role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                             <input class="tagsinput" name="db_name" type="text"  value="all" data-role="tagsinput" />
                                             <div class="hashtag_div"></div>
                                             <p>You can not work with more than one database when editing!</p>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="JobFormControlSelect1">Select action</label>
+                                            <select name="action" class="form-control" id="JobFormAction">
+                                                <option>backup</option>
+                                                <!-- <option>restore</option> -->
+                                            </select>
                                         </div>
                                         <div class="form-group">
                                             <label for="JobFormControlSelect1">Select DMS</label>
@@ -135,68 +209,6 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                     <p>Are you sure you want to delete the job</p>
                                 </div>
                                 <div class="modal-footer deleteJob-buttons">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="AddJob" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="AddJobTitle" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="AddJobTitle">Create Job</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    
-                                </div>
-                                <div class="modal-body">
-                                    <p class="mssql-extra-field" style="color:red">When MSSQL is backed up, the files are saved to the MSSQL server, as well as the ability to download and rotation is disabled</p>
-                                    {% csrf_token %}
-                                    <form id="AddJobForm">
-                                        <div class="form-group">
-                                            <label>Name</label>
-                                            <input name="name" type="text" class="form-control" placeholder="prod-back1">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Database name</label>
-                                            <input class="tagsinput" name="db_name" type="text"  value="all" data-role="tagsinput" />
-                                            <div class="hashtag_div"></div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="JobFormControlSelect1">Select action</label>
-                                            <select name="action" class="form-control" id="JobFormAction">
-                                                <option>backup</option>
-                                                <!-- <option>restore</option> -->
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="JobFormControlSelect1">Select DMS</label>
-                                            <div class="input-group mb-3">
-                                                <select name="dst_db" class="form-control DMSChecker" id="JobFormDMSAdd">
-                                                    {% for dms in dmses %}
-                                                        <option value="{{ dms.type }}" id="{{ dms.dst_db.id }}">{{ dms.type }}/{{ dms.dst_db.host }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#AddDMS" data-dismiss="modal">Add</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group mssql-extra-field">
-                                            <label>Remote backup path</label>
-                                            <input name="remote_path" type="text" class="form-control" placeholder="/path/to/backup" value="">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>rotation</label>
-                                            <input name="rotation" type="text" class="form-control" placeholder="10">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Frequency <a href="https://crontab.guru/">(Tap me)</a></label>
-                                            <input name="frequency" type="text" class="form-control" placeholder="* * * * *">
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
-                                    <button type="submit" id="AddJobSubmit" class="btn btn-primary">Add</button>
                                 </div>
                             </div>
                         </div>
