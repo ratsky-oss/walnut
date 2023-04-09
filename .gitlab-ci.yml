@@ -18,7 +18,11 @@ include:
     
 secret_detection:
   tags:
-    - cq-sans-dind     # Set this job to only run on our new specialized runner
+    - cq-sans-dind
+  rules:
+    - if: $CODE_QUALITY_DISABLED
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Run code quality job in merge request pipelines
 
 code_quality:
   tags:
@@ -26,6 +30,10 @@ code_quality:
   services:
   artifacts:
     paths: [gl-code-quality-report.json]
+  rules:
+    - if: $CODE_QUALITY_DISABLED
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Run code quality job in merge request pipelines
 
 code_quality_html:
   extends: code_quality
@@ -33,6 +41,10 @@ code_quality_html:
     REPORT_FORMAT: html
   artifacts:
     paths: [gl-code-quality-report.html]
+  rules:
+    - if: $CODE_QUALITY_DISABLED
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Run code quality job in merge request pipelines
 
 .main-stand: &main-stand
   tags:
@@ -90,8 +102,6 @@ deploy:
     - build-deb-package
   when: on_success 
   
-  
-
 deploy-status:
   <<: *main-stand
   stage: healthcheck
