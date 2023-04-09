@@ -1,3 +1,51 @@
+stages:
+  # - ci-debug
+  - test
+  - build
+  - deploy
+  - healthcheck
+
+
+include:
+  - template: Code-Quality.gitlab-ci.yml
+ # - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+  # - template: Security/Container-Scanning.gitlab-ci.yml
+
+# sast:
+#   tags:
+#     - cq-sans-dind     # Set this job to only run on our new specialized runner
+    
+secret_detection:
+  tags:
+    - cq-sans-dind
+  rules:
+    - if: $CODE_QUALITY_DISABLED
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Run code quality job in merge request pipelines
+
+code_quality:
+  tags:
+    - cq-sans-dind
+  services:
+  artifacts:
+    paths: [gl-code-quality-report.json]
+  rules:
+    - if: $CODE_QUALITY_DISABLED
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Run code quality job in merge request pipelines
+
+code_quality_html:
+  extends: code_quality
+  variables:
+    REPORT_FORMAT: html
+  artifacts:
+    paths: [gl-code-quality-report.html]
+  rules:
+    - if: $CODE_QUALITY_DISABLED
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" # Run code quality job in merge request pipelines
+
 .main-stand: &main-stand
   tags:
     - walnut
@@ -9,6 +57,8 @@
 
 .package-builder: &package-builder
   image: dh-venv-builder
+  variables:
+    DOCKER_HOST: 'tcp://dockerproxy:2375'
   tags:
     # - ssh-docker
     - docker
@@ -18,12 +68,6 @@
     - main
     - fix_dev
 
-
-stages:
-  # - ci-debug
-  - build
-  - deploy
-  - healthcheck
 
 build-deb-package:
   <<: *package-builder
@@ -58,8 +102,6 @@ deploy:
     - build-deb-package
   when: on_success 
   
-  
-
 deploy-status:
   <<: *main-stand
   stage: healthcheck
