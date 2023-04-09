@@ -160,6 +160,13 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                             <p>You can not work with more than one database when editing!</p>
                                         </div>
                                         <div class="form-group">
+                                            <label for="JobFormControlSelect1">Select action</label>
+                                            <select name="action" class="form-control" id="JobFormAction">
+                                                <option>backup</option>
+                                                <!-- <option>restore</option> -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
                                             <label for="JobFormControlSelect1">Select DMS</label>
                                             <div class="input-group mb-3">
                                                 <select name="dst_db" class="form-control editJobinput DMSChecker" id="JobFormDMSEdit">

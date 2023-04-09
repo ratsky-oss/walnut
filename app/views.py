@@ -500,7 +500,7 @@ def get_form_add_job(request):
                     return JsonResponse({"status":"500", "error": " Frequency error"})
                 job = Job.objects.filter(id=data["id"]).update(name=data["name"], dst_db=dst_db, db_name=data["db_name"], action= "b" if data["action"] == "backup" else "r", frequency=data["frequency"], rotation=data["rotation"])
             except Exception as e:
-                return JsonResponse({"status":"500", "error": " Critical server error"})
+                return JsonResponse({"status":"500", "error": f" Critical server error"})
             return JsonResponse({"status":"200"})
         else:
             return JsonResponse({"status":"500", "error":" Incorrect frequency format"})
@@ -614,11 +614,11 @@ def get_databases(request):
         type = dms.type
         ddb = dms.dst_db
         if type == "mssql":
-            db=MSSQL(ddb.host, ddb.port, ddb.username, ddb.password)
+            db=MSSQL(db_host = ddb.host, db_port = ddb.port, db_username = ddb.username, db_password = ddb.password)
         if type == "postgres":
-            db=PGSQL(ddb.host, ddb.port, ddb.username, ddb.password)
+            db=PGSQL(db_host = ddb.host, db_port = ddb.port, db_username = ddb.username, db_password = ddb.password)
         if type == "mysql":
-            db=MYSQL(ddb.host, ddb.port, ddb.username, ddb.password)
+            db=MYSQL(db_host = ddb.host, db_port = ddb.port, db_username = ddb.username, db_password = ddb.password)
         try:
             databases=db.check_dump_permissions()
             if databases == None:

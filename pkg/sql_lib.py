@@ -43,13 +43,12 @@ class SQL:
 
     def __init__(self, *args, **kwargs):
 
-        self.db_host = kwargs["db_host"] 
+        self.db_host = kwargs["db_host"]
         self.db_port = kwargs["db_port"] 
         self.db_username = kwargs["db_username"]
         self.db_password = kwargs["db_password"]
-        self.db_name = kwargs["db_name"]
+        self.db_name = kwargs["db_name"] if "db_name" in kwargs else None
     
-
         if len(args) == 2:
             self.db_host = args[0].db_host 
             self.db_port = args[0].db_port
