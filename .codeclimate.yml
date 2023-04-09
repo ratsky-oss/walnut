@@ -1,0 +1,12 @@
+plugins:
+  duplication:
+    enabled: true
+    config:
+      languages:
+        python:
+          python_version: 3
+exclude_patterns:
+- "app/static/js/pages/*"
+- "app/static/js/pcoded.min.js"
+- "app/static/js/vendor-all.min.js"
+- "app/static/plugins/**/*"
