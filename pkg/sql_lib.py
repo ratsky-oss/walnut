@@ -37,18 +37,13 @@ class SQL:
             or
             (database name(optional), database host, database port, database username, database user passwd)
 
-            ..... or kwargs db_host db_port db_username db_password db_name
+            ..... or kwargs db_host db_port db_username db_password db_name sql_class
     '''
     
 
     def __init__(self, *args, **kwargs):
 
-        self.db_host = kwargs["db_host"]
-        self.db_port = kwargs["db_port"] 
-        self.db_username = kwargs["db_username"]
-        self.db_password = kwargs["db_password"]
-        self.db_name = kwargs["db_name"] if "db_name" in kwargs else None
-    
+
         if len(args) == 2:
             self.db_host = args[0].db_host 
             self.db_port = args[0].db_port
@@ -67,6 +62,17 @@ class SQL:
             self.db_username = args[3]
             self.db_password = args[4]
         
+        self.db_host = kwargs["db_host"] if "db_host" in kwargs else None
+        self.db_port = kwargs["db_port"] if "db_port" in kwargs else None
+        self.db_username = kwargs["db_username"] if "db_username" in kwargs else None
+        self.db_password = kwargs["db_password"] if "db_password" in kwargs else None
+        self.db_name = kwargs["db_name"] if "db_name" in kwargs else None
+        if "sql_class" in kwargs:
+            self.db_host = kwargs["sql_class"].db_host 
+            self.db_port = kwargs["sql_class"].db_port
+            self.db_username = kwargs["sql_class"].db_username
+            self.db_password = kwargs["sql_class"].db_password
+
         self.conf = Config()
         self.redis_handler = RedisHandler(self.conf.redis_url)
 
