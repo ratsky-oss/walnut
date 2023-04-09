@@ -463,7 +463,7 @@ $(document).ready(function(){
                     notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
                 },
                 complete: function (result, status){
-                    $(".rcyncBackup-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="rcyncBackup_${this.id}" class="btn btn-primary rcyncBackupAccept" data-dismiss="modal" aria-label="Close" disabled>Go</button`)
+                    $(".rcyncBackup-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="rcyncBackup_${this.id}" class="btn btn-primary rcyncBackupAccept" data-dismiss="modal" aria-label="Close">Go</button`)
                 }
             })
         });
