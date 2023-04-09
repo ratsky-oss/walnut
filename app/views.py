@@ -599,7 +599,7 @@ def get_edit_object_data(request):
         else:
             job = Job.objects.filter(id=data["id"]).first()  
             return JsonResponse({
-                "dst_db": job.dst_db.dmsinfo_set.all().first().type,
+                "dms_id": job.dst_db.dmsinfo_set.all().first().id,
                 "name":job.name,
                 "db_name":job.db_name,
                 "rotation":job.rotation,
