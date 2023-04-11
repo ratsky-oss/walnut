@@ -67,6 +67,7 @@ class SQL:
         self.db_username = kwargs["db_username"] if "db_username" in kwargs else None
         self.db_password = kwargs["db_password"] if "db_password" in kwargs else None
         self.db_name = kwargs["db_name"] if "db_name" in kwargs else None
+        self.remote_path = kwargs["remote_path"] if "remote_path" in kwargs else None
         if "sql_class" in kwargs:
             self.db_host = kwargs["sql_class"].db_host 
             self.db_port = kwargs["sql_class"].db_port
