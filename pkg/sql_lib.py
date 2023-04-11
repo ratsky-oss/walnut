@@ -444,8 +444,7 @@ class MYSQL(SQL):
                                             f"--port={self.db_port}",
                                             f"--user={self.db_username}",
                                             f"--password={self._decrypt_passwd()}",
-                                            backup_type,
-                                            "--skip-column-statistics"
+                                            backup_type
                                         ], 
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
