@@ -69,13 +69,13 @@ def back_up(worker_name, engine):
                                                                     "db_host": db_host
                                                                 })
         if dms_type == "mysql":
-            mysql = MYSQL(db_name, db_host, db_port, db_username, db_password)
+            mysql = MYSQL(db_name = db_name, db_host = db_host, db_port = db_port, db_username = db_username, db_password = db_password)
             if db_name == "all":
                 mysql.backup(conf, engine, name, f"{conf.backup_base_path}/{name}", full_path, db_info["job"]["rotation"], worker_name, "--all-databases")
             else:
                 mysql.backup(conf, engine, name, f"{conf.backup_base_path}/{name}", full_path, db_info["job"]["rotation"], worker_name, db_name)
         if dms_type == "postgres":
-            pgsql = PGSQL(db_name, db_host, db_port, db_username, db_password)
+            pgsql = PGSQL(db_name=db_name, db_host=db_host, db_port=db_port, db_username=db_username, db_password=db_password)
             pgsql.create_file_pgpass(worker_name)
             pgsql.backup(conf, engine, name, f"{conf.backup_base_path}/{name}", full_path, db_info["job"]["rotation"], worker_name)
         if dms_type == "mssql":
