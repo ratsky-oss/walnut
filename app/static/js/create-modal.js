@@ -219,9 +219,13 @@ $(document).ready(function(){
                 var hashtagDiv = $(".hashtag_div");
                 var selectedId =  $('#JobFormDMSEdit').find(":selected").attr("dms_id");
                 var $data = {"dms_id":selectedId};
-                console.log($('#JobFormDMSEdit').find(":selected"))
+                // console.log($('#JobFormDMSEdit').find(":selected"))
                 // Отправка POST-запроса на сервер
-
+                if ($('#JobFormDMSEdit').val().split('/')[0] === 'mssql') {
+                    $('.mssql-extra-field').show();
+                } else {
+                    $('.mssql-extra-field').hide();
+                }
                 $.ajax({
                     url: 'jobs/getDatabases',
                     type: "POST",
@@ -463,7 +467,7 @@ $(document).ready(function(){
                     notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
                 },
                 complete: function (result, status){
-                    $(".rcyncBackup-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="rcyncBackup_${this.id}" class="btn btn-primary rcyncBackupAccept" data-dismiss="modal" aria-label="Close" disabled>Go</button`)
+                    $(".rcyncBackup-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="rcyncBackup_${this.id}" class="btn btn-primary rcyncBackupAccept" data-dismiss="modal" aria-label="Close">Go</button`)
                 }
             })
         });
