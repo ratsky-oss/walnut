@@ -76,6 +76,51 @@ $(document).ready(function(){
         });
     };
     $('.DMSChecker').change(function() {
+        $('.spinner-border').show();
+        var hashtagDiv = $(".hashtag_div");
+        var selectedId = $(this).find("option:selected").attr("dms_id");
+        var $data = {"dms_id":selectedId};
+        $.ajax({
+            url: 'jobs/getDatabases',
+            type: "POST",
+            dataType: 'json',
+            data: JSON.stringify($data),
+            headers: {
+                'X-CSRFToken': getCookie("csrftoken"),
+            },
+            contentType: 'application/json;charset=UTF-8', // post data || get data
+            success : function(result) {
+                if (result.status == "200") { 
+                    hashtagDiv.empty();
+                    for (var i = 0; i < result.databases.length; i++) {
+                        var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
+                        hashtagDiv.append(newSpan);
+                    }
+                    $('input[data-role="tagsinput"]').tagsinput();
+
+                    $('.hashtags').on('click', function() {
+                    var hashtagText = $(this).text();
+                    var input = $('input[data-role="tagsinput"]');
+
+                    input.tagsinput('add', hashtagText);
+                    });
+                } else {
+                    hashtagDiv.empty();
+                    hashtagDiv.append("<span>Type your own databases</span>");
+                    notify('top', 'right', 'feather icon-layers', 'warning', 'pass', 'pass', ' ', result.warning);
+                }
+            },
+            error: function(xhr, resp, text) {
+                var hashtagDiv = $(".hashtag_div");
+                hashtagDiv.empty();
+                hashtagDiv.append("<span>Type your own databases</span>");
+                notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Can not connect to walnut django server');
+            },
+            complete: function (result, status){
+                $('.spinner-border').hide();
+            }
+        })
+
         // если выбрана определенная опция, показываем extraField
         if ($(this).val().split('/')[0] === 'mssql') {
             $('.mssql-extra-field').show();
@@ -83,13 +128,6 @@ $(document).ready(function(){
             $('.mssql-extra-field').hide();
         }
       });
-    $('#editJob').on('show.bs.modal', function (event) {
-        if ($('#JobFormDMSEdit').val().split('/')[0] === 'mssql') {
-            $('.mssql-extra-field').show();
-        } else {
-            $('.mssql-extra-field').hide();
-        }
-    });
     $('#AddJob').on('show.bs.modal', function (event) {
         if ($('#JobFormDMSAdd').val().split('/')[0] === 'mssql') {
             $('.mssql-extra-field').show();
@@ -286,4 +324,3 @@ $(document).ready(function(){
     });
 
 });
-

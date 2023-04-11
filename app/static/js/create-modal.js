@@ -137,6 +137,181 @@ $(document).ready(function(){
             })
         });
     });
+    $(".AddJob").on('click', function(){
+        $('.spinner-border').show();
+        var hashtagDiv = $(".hashtag_div");
+        var selectedId =  $('#JobFormDMSAdd').find(":selected").attr("dms_id");
+        var $data = {"dms_id":selectedId};
+        // Отправка POST-запроса на сервер
+
+        $.ajax({
+            url: 'jobs/getDatabases',
+            type: "POST",
+            dataType: 'json',
+            data: JSON.stringify($data),
+            headers: {
+                'X-CSRFToken': getCookie("csrftoken"),
+            },
+            contentType: 'application/json;charset=UTF-8', // post data || get data
+            success : function(result) {
+                if (result.status == "200") {
+                    hashtagDiv.empty();
+                    for (var i = 0; i < result.databases.length; i++) {
+                        var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
+                        hashtagDiv.append(newSpan);
+                    }
+                    $('input[data-role="tagsinput"]').tagsinput();
+
+                    $('.hashtags').on('click', function() {
+                    var hashtagText = $(this).text();
+                    var input = $('input[data-role="tagsinput"]');
+
+                    input.tagsinput('add', hashtagText);
+                    });
+                } else {
+                    hashtagDiv.empty();
+                    hashtagDiv.append("<span>Type your own databases</span>");
+                    notify('top', 'right', 'feather icon-layers', 'warning', 'pass', 'pass', ' ', result.warning);
+                }
+            },
+            error: function(xhr, resp, text) {
+                var hashtagDiv = $(".hashtag_div");
+                hashtagDiv.empty();
+                hashtagDiv.append("<span>Type your own databases</span>");
+                notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Can not connect to walnut django server');
+            },
+            complete: function (result, status){
+                $('.spinner-border').hide();
+            }
+        })
+    });
+    $(".editJob").on('click', function(){
+        $(".editJob-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="editJob_${this.id}" class="btn btn-primary editJobAccept" data-dismiss="modal" aria-label="Close">Yes</button`)
+        $('.spinner-border').show();
+        $.ajax({
+            url: 'object/editObject',
+            type: "POST",
+            dataType: 'json',
+            data: JSON.stringify({'form-type':'job','id':this.id}),
+            headers: {
+                'X-CSRFToken': getCookie("csrftoken"),
+            },
+            contentType: 'application/json;charset=UTF-8', // post data || get data
+            success : function(result) {
+                var input = $('input[data-role="tagsinput"]');
+                $('.editJobinput option[dms_id='+ result.dms_id +']').prop('selected', true);
+                $('.editJobinput[name=name]').val(result.name);
+                input.tagsinput('removeAll');
+                input.tagsinput('add', result.db_name);
+                $('.editJobinput[name=rotation]').val(result.rotation);
+                $('.editJobinput[name=frequency]').val(result.frequency);
+                if ($('.DMSChecker').val().split('/')[0] === 'mssql') {
+                    $('.mssql-extra-field').show();
+                    $('.editJobinput[name=remote_path]').val(result.remote_path);
+                } else {
+                    $('.mssql-extra-field').hide();
+                }
+            },
+            error: function(xhr, resp, text) {
+                notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
+            },
+            complete: function (result, status){
+                var hashtagDiv = $(".hashtag_div");
+                var selectedId =  $('#JobFormDMSEdit').find(":selected").attr("dms_id");
+                var $data = {"dms_id":selectedId};
+                // console.log($('#JobFormDMSEdit').find(":selected"))
+                // Отправка POST-запроса на сервер
+                if ($('#JobFormDMSEdit').val().split('/')[0] === 'mssql') {
+                    $('.mssql-extra-field').show();
+                } else {
+                    $('.mssql-extra-field').hide();
+                }
+                $.ajax({
+                    url: 'jobs/getDatabases',
+                    type: "POST",
+                    dataType: 'json',
+                    data: JSON.stringify($data),
+                    headers: {
+                        'X-CSRFToken': getCookie("csrftoken"),
+                    },
+                    contentType: 'application/json;charset=UTF-8', // post data || get data
+                    success : function(result) {
+                        if (result.status == "200") {
+                            hashtagDiv.empty();
+                            for (var i = 0; i < result.databases.length; i++) {
+                                var newSpan = $("<span class='btn btn-primary hashtags'>" + result.databases[i] + "</span>");
+                                hashtagDiv.append(newSpan);
+                            }
+                            $('input[data-role="tagsinput"]').tagsinput();
+
+                            $('.hashtags').on('click', function() {
+                            var hashtagText = $(this).text();
+                            var input = $('input[data-role="tagsinput"]');
+
+                            input.tagsinput('add', hashtagText);
+                            });
+                        } else {
+                            hashtagDiv.empty();
+                            hashtagDiv.append("<span>Type your own databases</span>");
+                            notify('top', 'right', 'feather icon-layers', 'warning', 'pass', 'pass', ' ', result.warning);
+                        }
+                    },
+                    error: function(xhr, resp, text) {
+                        var hashtagDiv = $(".hashtag_div");
+                        hashtagDiv.empty();
+                        hashtagDiv.append("<span>Type your own databases</span>");
+                        notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Can not connect to walnut django server');
+                    },
+                    complete: function (result, status){
+                        $('.spinner-border').hide();
+                    }
+                })
+            }
+        })
+        
+    $(".editJobAccept").on('click', function(){
+        $job_id = this.id.split('_')[1]
+        var $data = {};
+        $('#editJob').find ('input, textearea, select').each(function() {
+            if (this.name == "dst_db") {
+                $data[this.name] = this.options[this.selectedIndex].id
+            } else {
+                $data[this.name] = $(this).val();
+            };
+        });
+        $data["id"] = $job_id
+        if ($data["db_name"].includes(',')){
+            notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' You cannot add more than 1 database when editing!');
+            return;
+        }
+        if (validateCronTime($data["frequency"])) {
+            $.ajax({
+                url: 'jobs/optionsJob',
+                type: "PUT",
+                dataType: 'json',
+                data: JSON.stringify($data),
+                headers: {
+                    'X-CSRFToken': getCookie("csrftoken"),
+                },
+                contentType: 'application/json;charset=UTF-8', // post data || get data
+                success : function(result) {
+                    if (result.status == "200") {
+                        location.reload();
+                    } else if (result["error"]) {
+                        notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' ' + result.error);
+                    } else {
+                        notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
+                    }
+                },
+                error: function(xhr, resp, text) {
+                    notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
+                }
+            })
+        } else {
+            notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Incorrect frequency format');
+        }
+    });
+    });
     $(".deleteJob").on('click', function(){
         $(".deleteJob-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="deleteJob_${this.id}" class="btn btn-primary deleteJobAccept" data-dismiss="modal" aria-label="Close">Yes</button`)
         $(".deleteJobAccept").on('click', function(){
@@ -162,77 +337,6 @@ $(document).ready(function(){
                     notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
                 }
             })
-        });
-    });
-    $(".editJob").on('click', function(){
-        $(".editJob-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="editJob_${this.id}" class="btn btn-primary editJobAccept" data-dismiss="modal" aria-label="Close">Yes</button`)
-        $.ajax({
-            url: 'object/editObject',
-            type: "POST",
-            dataType: 'json',
-            data: JSON.stringify({'form-type':'job','id':this.id}),
-            headers: {
-                'X-CSRFToken': getCookie("csrftoken"),
-            },
-            contentType: 'application/json;charset=UTF-8', // post data || get data
-            success : function(result) {
-                $('.editJobinput[name=dst_db]').val(result.dst_db);
-                $('.editJobinput[name=name]').val(result.name);
-                $('.editJobinput[name=db_name]').val(result.db_name);
-                $('.editJobinput[name=rotation]').val(result.rotation);
-                $('.editJobinput[name=frequency]').val(result.frequency);
-                if ($('.DMSChecker').val().split('/')[0] === 'mssql') {
-                    $('.mssql-extra-field').show();
-                    $('.editJobinput[name=remote_path]').val(result.remote_path);
-                } else {
-                    $('.mssql-extra-field').hide();
-                }
-            },
-            error: function(xhr, resp, text) {
-                notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
-            }
-        })
-        $(".editJobAccept").on('click', function(){
-            $job_id = this.id.split('_')[1]
-            var $data = {};
-            $('#editJob').find ('input, textearea, select').each(function() {
-                if (this.name == "dst_db") {
-                    $data[this.name] = this.options[this.selectedIndex].id
-                } else {
-                    $data[this.name] = $(this).val();
-                };
-            });
-            $data["id"] = $job_id
-            if ($data["db_name"].includes(',')){
-                notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' You cannot add more than 1 database when editing!');
-                return;
-            }
-            if (validateCronTime($data["frequency"])) {
-                $.ajax({
-                    url: 'jobs/optionsJob',
-                    type: "PUT",
-                    dataType: 'json',
-                    data: JSON.stringify($data),
-                    headers: {
-                        'X-CSRFToken': getCookie("csrftoken"),
-                    },
-                    contentType: 'application/json;charset=UTF-8', // post data || get data
-                    success : function(result) {
-                        if (result.status == "200") {
-                            location.reload();
-                        } else if (result["error"]) {
-                            notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' ' + result.error);
-                        } else {
-                            notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
-                        }
-                    },
-                    error: function(xhr, resp, text) {
-                        notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
-                    }
-                })
-            } else {
-                notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Incorrect frequency format');
-            }
         });
     });
     $(".deleteUser").on('click', function(){
@@ -301,7 +405,7 @@ $(document).ready(function(){
         $(".deleteBackupAccept").on('click', function(){
             $backup_id = this.id.split('_')[1]
             $.ajax({
-                url: '/backup/optionsBackup',
+                url: 'optionsBackup',
                 type: "DELETE",
                 dataType: 'json',
                 data: JSON.stringify({'id':$backup_id}),
@@ -322,6 +426,48 @@ $(document).ready(function(){
                 },
                 error: function(xhr, resp, text) {
                     notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
+                }
+            })
+        });
+    });
+    $(".rcyncBackup").on('click', function(){
+        $(".rcyncBackup-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="rcyncBackup_${this.id}" class="btn btn-primary rcyncBackupAccept" data-dismiss="modal" aria-label="Close">Go</button`)
+        $(".rcyncBackupAccept").on('click', function(){
+            $(".rcyncBackup-buttons").html(`
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                            <button type="button" id="rcyncBackup_${this.id}" class="btn btn-primary rcyncBackupAccept" data-dismiss="modal" aria-label="Close">
+                                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                                <span class="sr-only">Loading...</span>
+                                            </button>`
+                                          );
+            var $data = {};
+            $data['backup_id'] = this.id.split('_')[1]
+            $('#rcyncBackupForm').find ('input, textearea, select').each(function() {
+                $data[this.name] = $(this).val();
+            });
+            $.ajax({
+                url: 'rcync',
+                type: "POST",
+                dataType: 'json',
+                data: JSON.stringify($data),
+                headers: {
+                    'X-CSRFToken': getCookie("csrftoken"),
+                },
+                contentType: 'application/json;charset=UTF-8', // post data || get data
+                success : function(result) {
+                    if (result.status == "200") {
+                        notify('top', 'right', 'feather icon-layers', 'success', 'pass', 'pass', '',  result.message);
+                    } else if (result.status == "450") {
+                        notify('top', 'right', 'feather icon-layers', 'warning', 'pass', 'pass', '', ' ' + result.error);
+                    } else {
+                        notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' ' + result.error);
+                    }
+                },
+                error: function(xhr, resp, text) {
+                    notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
+                },
+                complete: function (result, status){
+                    $(".rcyncBackup-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="rcyncBackup_${this.id}" class="btn btn-primary rcyncBackupAccept" data-dismiss="modal" aria-label="Close">Go</button`)
                 }
             })
         });

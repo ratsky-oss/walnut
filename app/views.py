@@ -29,7 +29,7 @@ import json
 import os
 import re
 
-from .functions import get_queue_len
+from .functions import get_queue_len, ssh_copy_file
 from pkg.config import Config, MasterConfig, WorkerConfig, ObserverConfig, DjangoConfig
 from pkg.db_connection import check_dst_db
 from pkg.sql_lib import MSSQL, PGSQL, MYSQL
@@ -80,6 +80,7 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
         else:
             return redirect(reverse('app:login_page'))
 
+
     def get_context_data(self, **kwargs):
         conf = Config()
         django_conf = DjangoConfig()
@@ -89,8 +90,19 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
         redis_handler = RedisHandler(conf_master.redis_url)
         context = super().get_context_data(**kwargs)
         jobs = Job.objects.all()
-        redis_connect = redis.StrictRedis.from_url(conf.redis_url, decode_responses=True, db=0)
 
+        redis_connect = redis.StrictRedis.from_url(conf.redis_url, decode_responses=True, db=0)
+        redis_connect_error = redis.StrictRedis.from_url(conf.redis_url + "/1", decode_responses=True)
+        try:
+            worker_status_bufer =  worker_status(redis_connect)
+            worker_error_bufer = worker_error(redis_connect_error)
+            context["worker_status"] =  copy.deepcopy(worker_status_bufer)
+            for key,value in worker_status_bufer.items():
+                if value["worker_status"] == "error":
+                    context["worker_status"][key]["error_text"] = worker_error_bufer[value["job_name"]]["error_text"]
+        except  Exception as e:
+            context["worker_status"] = {}
+            
         try:
             context['disk'] = [ humanize.intcomma(int(psutil.disk_usage(worker_config.backup_base_path).free/(1024*1024))), 
                             humanize.intcomma(int(psutil.disk_usage(worker_config.backup_base_path).total/(1024*1024))),
@@ -142,14 +154,6 @@ class Main_Page_View(BaseContextMixin, TemplateView ):
             context['queue_len'] = get_queue_len(conf.rabbitmq_url, conf.rabbitmq_queue_name)
         except:
             context['queue_len'] = 0
-            
-            
-            
-            
-            
-            
-            
-
         context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
         context['max_worker_count'] = conf_master.max_worker
         context['shedular_count'] = len(jobs)
@@ -178,8 +182,8 @@ class Jobs_Page_View(BaseContextMixin, TemplateView ):
         jobs = Job.objects.all()
 
         
-        context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
-        context['dms'] = DMSInfo.objects.all()
+        # context['jobs'] = [[item, item.dst_db.dmsinfo_set.first()] for item in jobs]
+        context['dmses'] = DMSInfo.objects.all()
         return context
 
 class DMS_Page_View(BaseContextMixin, TemplateView ):
@@ -413,7 +417,7 @@ def get_form_add_dms(request):
             dms.dst_db = DestinationDatabase.objects.filter(id=dms.dst_db.id).first()
             del c
         except Exception as e:
-            return JsonResponse({"status":"500","error": "Can not update DMS"})
+            return JsonResponse({"status":"500","error": f" {e}"})
         return JsonResponse({"status":"200"})
     else:
         return JsonResponse({"status":"500","error": " Bad request"})
@@ -496,7 +500,7 @@ def get_form_add_job(request):
                     return JsonResponse({"status":"500", "error": " Frequency error"})
                 job = Job.objects.filter(id=data["id"]).update(name=data["name"], dst_db=dst_db, db_name=data["db_name"], action= "b" if data["action"] == "backup" else "r", frequency=data["frequency"], rotation=data["rotation"])
             except Exception as e:
-                return JsonResponse({"status":"500", "error": " Critical server error"})
+                return JsonResponse({"status":"500", "error": f" Critical server error"})
             return JsonResponse({"status":"200"})
         else:
             return JsonResponse({"status":"500", "error":" Incorrect frequency format"})
@@ -595,13 +599,33 @@ def get_edit_object_data(request):
         else:
             job = Job.objects.filter(id=data["id"]).first()  
             return JsonResponse({
-                "dst_db": job.dst_db.dmsinfo_set.all().first().type,
+                "dms_id": job.dst_db.dmsinfo_set.all().first().id,
                 "name":job.name,
                 "db_name":job.db_name,
                 "rotation":job.rotation,
                 "frequency":job.frequency,
                 "remote_path": job.remote_path,
             })
+
+def get_databases(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        dms = DMSInfo.objects.filter(id=data["dms_id"]).first()
+        type = dms.type
+        ddb = dms.dst_db
+        if type == "mssql":
+            db=MSSQL(db_host = ddb.host, db_port = ddb.port, db_username = ddb.username, db_password = ddb.password)
+        if type == "postgres":
+            db=PGSQL(db_host = ddb.host, db_port = ddb.port, db_username = ddb.username, db_password = ddb.password)
+        if type == "mysql":
+            db=MYSQL(db_host = ddb.host, db_port = ddb.port, db_username = ddb.username, db_password = ddb.password)
+        try:
+            databases=db.check_dump_permissions()
+            if databases == None:
+                return JsonResponse({"status":"450", "warning": "Could not find suggestions for DMS"})
+        except:
+            return JsonResponse({"status":"450", "warning": "Something go wrong, check your DMS user privelleges"})
+        return JsonResponse({"status": "200" ,"databases": databases})
 
 def start_job(request):
     if request.method == 'POST':
@@ -613,3 +637,13 @@ def download_backup(request, id):
     backup = BackupInfo.objects.get(id=id)
     response = FileResponse(open(backup.fs_path, 'rb'))
     return response
+
+def get_ssh_copy_file(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        backup_path = BackupInfo.objects.get(id=data["backup_id"]).fs_path
+        status = ssh_copy_file(backup_path,  data["dst_path"],  data["ssh_user"],  data["ssh_password"],  data["ssh_host"],  data["ssh_port"])
+        if status["status"]:
+            return JsonResponse({"status":"200", "message": status["message"]})
+        else:
+            return JsonResponse({"status":"500", "error": status["message"]})

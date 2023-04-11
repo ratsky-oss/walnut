@@ -84,6 +84,43 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                 <div class="pcoded-inner-content">
                                     <div class="main-body">
                                         <!-- [ Modal Windows ] Start -->
+                                        <div id="rcyncBackup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="rcyncBackupTitle" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="rcyncBackupTitle">Copy backup file</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        {% csrf_token %}
+                                                        <form id="rcyncBackupForm">
+                                                            <div class="form-group">
+                                                                <label>Destination file path</label>
+                                                                <input name="dst_path" type="text" class="form-control rcyncBackupinput" placeholder="/home/test/file_name.sql">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>SSH user</label>
+                                                                <input name="ssh_user" type="text" class="form-control rcyncBackupinput" placeholder="test">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>SSH password</label>
+                                                                <input name="ssh_password" type="password" class="form-control rcyncBackupinput" placeholder="password">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>SSH host</label>
+                                                                <input name="ssh_host" type="text" class="form-control rcyncBackupinput" placeholder="192.168.1.1">
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label>SSH port</label>
+                                                                <input name="ssh_port" type="text" class="form-control rcyncBackupinput"  value="22" placeholder="22">
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer rcyncBackup-buttons">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div id="deleteBackup" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteBackupTitle" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered" role="document">
                                                 <div class="modal-content">
@@ -143,13 +180,16 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                                                                         </td>
                                                                                         <td>
                                                                                             {% if job.dst_db.dmsinfo_set.all.first.type == 'mssql'%}
-                                                                                                <button type="button"  data-original-title="Delete backup" data-toggle="modal" data-target="#deleteBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary deleteBackup"><i class="feather icon-trash-2"></i></button>
+                                                                                                <!-- <button type="button"  title="Rsync backup" data-original-title="Rsync backup" data-toggle="modal" data-target="#rcyncBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary rcyncBackup"><i class="mdi mdi-file-send"></i></button> -->
+                                                                                                <button type="button"  title="Delete backup" data-original-title="Delete backup" data-toggle="modal" data-target="#deleteBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary deleteBackup"><i class="feather icon-trash-2"></i></button>
                                                                                             {% else %}
                                                                                                 {% if backup.fs_path|check_file_exist %}
-                                                                                                    <a type="button"  data-original-title="Download backup" class="btn btn-icon btn-outline-secondary downloadBackup" href="{%url 'app:download_backup' backup.id%}"><i class="feather icon-download"></i></a>
-                                                                                                    <button type="button"  data-original-title="Delete backup" data-toggle="modal" data-target="#deleteBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary deleteBackup"><i class="feather icon-trash-2"></i></button>
+                                                                                                    <a type="button" title="Download backup" data-original-title="Download backup" class="btn btn-icon btn-outline-secondary downloadBackup" href="{%url 'app:download_backup' backup.id%}"><i class="feather icon-download"></i></a>
+                                                                                                    <button type="button"  title="Rsync backup" data-original-title="Rsync backup" data-toggle="modal" data-target="#rcyncBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary rcyncBackup"><i class="mdi mdi-file-send"></i></button>
+                                                                                                    <button type="button" title="Delete backup" data-original-title="Delete backup" data-toggle="modal" data-target="#deleteBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary deleteBackup"><i class="feather icon-trash-2"></i></button>
                                                                                                 {% else %}
-                                                                                                    <button type="button"  data-original-title="Delete backup" data-toggle="modal" data-target="#deleteBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary deleteBackup"><i class="feather icon-trash-2"></i></button>
+                                                                                                    <!-- <button type="button"  title="Rsync backup" data-original-title="Rsync backup" data-toggle="modal" data-target="#rcyncBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary rcyncBackup"><i class="mdi mdi-file-send"></i></button> -->
+                                                                                                    <button type="button"  title="Delete backup" data-original-title="Delete backup" data-toggle="modal" data-target="#deleteBackup" id="{{ backup.id }}" class="btn btn-icon btn-outline-secondary deleteBackup"><i class="feather icon-trash-2"></i></button>
                                                                                                 {% endif %}
                                                                                             {% endif %}
                                                                                         </td>
