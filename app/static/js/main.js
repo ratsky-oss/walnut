@@ -102,7 +102,7 @@ $(document).ready(function(){
                     var hashtagText = $(this).text();
                     var input = $('input[data-role="tagsinput"]');
 
-                    input.tagsinput('add', "<span class='hashtags'>" + result.databases[i] + "</span>");
+                    input.tagsinput('add', hashtagText);
                     });
                 } else {
                     hashtagDiv.empty();
