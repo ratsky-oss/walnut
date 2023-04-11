@@ -273,7 +273,7 @@ class PGSQL(SQL):
                                                     "db_host": self.db_host
                                                 })
                 sleep(5)
-                self.redis_handler.del_info_into_redis(self, self.conf.redis_worker_database, worker_name)
+                self.redis_handler.del_info_into_redis(self.conf.redis_worker_database, worker_name)
                 while check_file_count(backup_dir, rotation): 
                     files = list(Path(backup_dir).iterdir())
                     files.sort()
@@ -445,6 +445,7 @@ class MYSQL(SQL):
                                             f"--user={self.db_username}",
                                             f"--password={self._decrypt_passwd()}",
                                             backup_type,
+                                            "--column-statistics=0"
                                         ], 
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE,
