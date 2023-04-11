@@ -128,13 +128,6 @@ $(document).ready(function(){
             $('.mssql-extra-field').hide();
         }
       });
-    $('#editJob').on('show.bs.modal', function (event) {
-        if ($('#JobFormDMSEdit').val().split('/')[0] === 'mssql') {
-            $('.mssql-extra-field').show();
-        } else {
-            $('.mssql-extra-field').hide();
-        }
-    });
     $('#AddJob').on('show.bs.modal', function (event) {
         if ($('#JobFormDMSAdd').val().split('/')[0] === 'mssql') {
             $('.mssql-extra-field').show();
