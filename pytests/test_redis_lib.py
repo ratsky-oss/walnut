@@ -1,99 +1,103 @@
 import pytest
 from pkg.redis_lib import RedisHandler
-from pkg.config import WorkerConfig
+from pkg.config import Config
 
-@pytest.fixture(scope='module')
+
+
+REDIS_CONNECTION_STRING = Config().redis_url 
+
+
+@pytest.fixture
 def redis_handler():
-    conf = WorkerConfig()
-    handler = RedisHandler(conf.redis_url)
-    yield handler
+    return RedisHandler(REDIS_CONNECTION_STRING)
 
-def test_send_info_to_redis(redis_handler):
-    conf = WorkerConfig()
-    message = {
-            "job_name": "test_job",
-            "worker_status": "success",
-            "timestamp": "2022-01-01T00:00:00",
-            "db_name": "test_db",
-            "db_host": "test_host"
-        }
-    redis_handler.send_info_to_redis(conf.redis_worker_database, "test_key", message)
-    result = redis_handler.redis_connection.hgetall("test_key")
-    assert result["job_name"] == "test_job"
-    assert result["worker_status"] == "success"
-    assert result["timestamp"] == "2022-01-01T00:00:00"
-    assert result["db_name"] == "test_db"
-    assert result["db_host"] == "test_host"
 
-def test_del_info_into_redis(redis_handler):
-    conf = WorkerConfig()
-    redis_handler.del_info_into_redis(conf.redis_worker_database, "test_key")
-    result = redis_handler.redis_connection.exists("test_key")
-    assert result == 0
+def test_send_and_delete_info_to_redis(redis_handler):
+    db_number = 0
+    key = "test_key"
+    message = {"foo": "bar"}
+
+    # Отправить информацию в Redis
+    redis_handler.send_info_to_redis(db_number, key, message)
+    connection = redis_handler.get_connection(db_number)
+    assert connection.hgetall(key) == message
+
+    # Удалить информацию из Redis
+    redis_handler.del_info_into_redis(db_number, key)
+    assert connection.hgetall(key) == {}
+
 
 def test_send_error_to_redis(redis_handler):
-    conf = WorkerConfig()
-    redis_handler.send_error_to_redis(conf.redis_worker_database, "test_job", "2022-01-01T00:00:00", "An error occurred")
-    key = len(redis_handler.redis_connection.keys())
-    result = redis_handler.redis_connection.hgetall(str(key))
-    assert result["job_name"] == "test_job"
-    assert result["timestamp"] == "2022-01-01T00:00:00"
-    assert result["error"] == "An error occurred"
+    db_number = 0
+    job_name = "test_job"
+    timestamp = "2023-04-12T12:00:00Z"
+    error = "Test error message"
+
+    # Отправить ошибку в Redis
+    redis_handler.send_error_to_redis(db_number, job_name, timestamp, error)
+    connection = redis_handler.get_connection(db_number)
+    key = len(connection.keys())  # Получить ключ, по которому была отправлена ошибка
+
+    error_info = connection.hgetall(key)
+    assert error_info["job_name"] == job_name
+    assert error_info["timestamp"] == timestamp
+    assert error_info["error"] == error
+
+    # Удалить ошибку из Redis
+    redis_handler.del_info_into_redis(db_number, key)
+    assert connection.hgetall(key) == {}
+
 
 def test_del_all_keys_into_redis(redis_handler):
-    conf = WorkerConfig()
-    message = {
-            "job_name": "test_job",
-            "worker_status": "success",
-            "timestamp": "2022-01-01T00:00:00",
-            "db_name": "test_db",
-            "db_host": "test_host"
-        }
-    redis_handler.send_info_to_redis(conf.redis_worker_database, "test_key_1", message)
-    redis_handler.send_info_to_redis(conf.redis_worker_database, "test_key_2", message)
+    db_number = 0
+    keys = ["test_key1", "test_key2", "test_key3"]
+    message = {"foo": "bar"}
 
-    assert redis_handler.redis_connection.exists("test_key_1") == 1
-    assert redis_handler.redis_connection.exists("test_key_2") == 1
+    # Отправить информацию в Redis для каждого ключа
+    for key in keys:
+        redis_handler.send_info_to_redis(db_number, key, message)
 
-    redis_handler.del_all_keys_into_redis(0)
-    assert redis_handler.redis_connection.exists("test_key_1") == 0
-    assert redis_handler.redis_connection.exists("test_key_2") == 0
+    # Удалить все ключи из Redis
+    redis_handler.del_all_keys_into_redis(db_number)
+    connection = redis_handler.get_connection(db_number)
+    for key in keys:
+        assert connection.hgetall(key) == {}
+
 
 def test_get_values_from_redis(redis_handler):
-    # Подготовка тестовых данных
-    test_db_number = 0
-    test_keys_list = ["key1", "key2", "key3"]
-    test_field = "field"
+    db_number = 0
+    keys_list = ["test_key1", "test_key2", "test_key3"]
+    field = "foo"
+    message = {field: "bar"}
 
-    message1 = {"field": "value1"}
-    message2 = {"field": "value2"}
-    message3 = {"field": "value3"}
+    # Отправить информацию в Redis для каждого ключа
+    for key in keys_list:
+        redis_handler.send_info_to_redis(db_number, key, message)
 
-    redis_handler.send_info_to_redis(test_db_number, "key1", message1)
-    redis_handler.send_info_to_redis(test_db_number, "key2", message2)
-    redis_handler.send_info_to_redis(test_db_number, "key3", message3)
+    # Получить значения по ключам и полю
+    values = redis_handler.get_values_from_redis(db_number, keys_list, field)
+    for key in keys_list:
+        assert values[key] == message[field]
 
-    # Удаляем один ключ, чтобы проверить, что функция корректно обрабатывает отсутствующие ключи
-    redis_handler.del_info_into_redis(test_db_number, "key2")
+    # Удалить ключи из Redis после тестирования
+    for key in keys_list:
+        redis_handler.del_info_into_redis(db_number, key)
 
-    # Вызов тестируемой функции
-    result = redis_handler.get_values_from_redis(test_db_number, test_keys_list, test_field)
-
-    # Проверка результатов
-    expected_result = {"key1": "value1", "key3": "value3"}
-    assert result == expected_result
 
 def test_get_redis_len(redis_handler):
-    conf = WorkerConfig()
-    # Добавьте несколько ключей с префиксом "arkadiy_" для проверки
-    redis_handler.send_info_to_redis(conf.redis_error_database, "arkadiy_1", {"test_key": "test_value"})
-    redis_handler.send_info_to_redis(conf.redis_error_database, "arkadiy_2", {"test_key": "test_value"})
-    redis_handler.send_info_to_redis(conf.redis_error_database, "arkadiy_3", {"test_key": "test_value"})
+    db_number = 0
+    key_pattern = "test_key_*"
+    keys_list = ["test_key_1", "test_key_2", "test_key_3"]
+    message = {"foo": "bar"}
 
-    # Проверьте, что функция get_redis_len() возвращает правильное количество ключей
-    assert redis_handler.get_redis_len(0) == 3
+    # Отправить информацию в Redis для каждого ключа
+    for key in keys_list:
+        redis_handler.send_info_to_redis(db_number, key, message)
 
-    # Удалите добавленные ключи для очистки
-    redis_handler.del_info_into_redis(conf.redis_error_database, "arkadiy_1")
-    redis_handler.del_info_into_redis(conf.redis_error_database, "arkadiy_2")
-    redis_handler.del_info_into_redis(conf.redis_error_database, "arkadiy_3")
+    # Получить количество ключей с заданным шаблоном
+    keys_count = redis_handler.get_redis_len(db_number, key_pattern)
+    assert keys_count == len(keys_list)
+
+    # Удалить ключи из Redis после тестирования
+    for key in keys_list:
+        redis_handler.del_info_into_redis(db_number, key)
