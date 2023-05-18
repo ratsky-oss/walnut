@@ -81,7 +81,7 @@ def pgsql():
 def test_create_file_pgpass(pgsql):
     pgsql._decrypt_passwd = MagicMock(return_value="decrypted_password")
     worker_name = "worker_1"
-    pgpass_path = f"/tmp/walnut/.{worker_name}"
+    pgpass_path = f"/opt/venvs/walnut/.{worker_name}"
 
     if os.path.exists(pgpass_path):
         os.remove(pgpass_path)
@@ -180,7 +180,7 @@ def test_check_dump_permissions(mock_psycopg2_connect, pgsql):
 #     mock_popen.return_value = popen_instance
 
 #     # Запуск функции backup
-#     mysql.backup(Config(), MagicMock(), "test_job", "/tmp/walnut/backup", "/tmp/walnut/backup/backup.gz", 3, "worker_1", "all")
+#     mysql.backup(Config(), MagicMock(), "test_job", "/opt/venvs/walnut/backup", "/opt/venvs/walnut/backup/backup.gz", 3, "worker_1", "all")
 
 #     # Проверка вызовов функций
 #     mock_popen.assert_called()
