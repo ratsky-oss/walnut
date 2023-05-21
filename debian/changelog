@@ -1,3 +1,8 @@
+walnut (0.1-6) unstable; urgency=medium
+
+  * Fixed tmp file paths
+
+ -- Andy Livitsky <ratsky@example.com>  Sun, 21 May 2023 21:00:00 +0300
 walnut (0.1-5) unstable; urgency=medium
 
   * All features for v1.0.0 created
