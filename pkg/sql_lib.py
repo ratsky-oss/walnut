@@ -241,7 +241,7 @@ class PGSQL(SQL):
                 popen = subprocess.Popen(
                                             [
                                                 "pg_dumpall", 
-                                                f"--dbname=postgresql://{self.db_username}@{self.db_host}:{self.db_port}?passfile=/tmp/walnut/.{worker_name}",
+                                                f"--dbname=postgresql://{self.db_username}@{self.db_host}:{self.db_port}?passfile=/opt/venvs/walnut/.{worker_name}",
                                             ], 
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE, 
@@ -280,7 +280,7 @@ class PGSQL(SQL):
                     os.remove(files[0])
                     db_delete_backup_info(engine, str(files[0]))
                     logger.info(f"[{worker_name}] Old backup deleted")
-            os.remove(f"/tmp/walnut/.{worker_name}")
+            os.remove(f"/opt/venvs/walnut/.{worker_name}")
             popen.stdout.close()
             popen.stderr.close()
         else:
@@ -289,7 +289,7 @@ class PGSQL(SQL):
                 popen = subprocess.Popen(
                                             [
                                                 "pg_dump", 
-                                                f"--dbname=postgresql://{self.db_username}@{self.db_host}:{self.db_port}/{self.db_name}?passfile=/tmp/walnut/.{worker_name}",
+                                                f"--dbname=postgresql://{self.db_username}@{self.db_host}:{self.db_port}/{self.db_name}?passfile=/opt/venvs/walnut/.{worker_name}",
                                             ], 
                                             stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE, 
@@ -328,16 +328,16 @@ class PGSQL(SQL):
                     os.remove(files[0])
                     db_delete_backup_info(engine, str(files[0]))
                     logger.info(f"[{worker_name}] Old backup deleted")
-            os.remove(f"/tmp/walnut/.{worker_name}")
+            os.remove(f"/opt/venvs/walnut/.{worker_name}")
             popen.stdout.close()
             popen.stderr.close()
 
     @logger.catch
     def create_file_pgpass(self, worker_name):
         try:
-            with open(f"/tmp/walnut/.{worker_name}",'w') as file:
+            with open(f"/opt/venvs/walnut/.{worker_name}",'w') as file:
                 file.write(f"{self.db_host}:{self.db_port}:*:{self.db_username}:{self._decrypt_passwd()}")
-            os.chmod(f"/tmp/walnut/.{worker_name}", 0o600)
+            os.chmod(f"/opt/venvs/walnut/.{worker_name}", 0o600)
         except Exception as e:
             logger.error(f'[FILE SYSTEM] {e}')
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1-6] - 2023-05-21
+
+### Fixed
+
+- Fixed tmp files path, causing errors after restart
+
 ## [0.1-5] - 2023-04-02 
 
 
