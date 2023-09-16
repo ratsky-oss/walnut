@@ -80,6 +80,7 @@ def callback(ch, method, properties, body):
 def get_message():
     connection = pika.BlockingConnection(pika.URLParameters(conf.rabbitmq_url))
     channel = connection.channel()
+    channel.basic_qos(1, global=False)
     channel.queue_declare(queue=conf.rabbitmq_queue_name)
     channel.basic_consume(conf.rabbitmq_queue_name, callback, auto_ack=False)
     channel.start_consuming()
