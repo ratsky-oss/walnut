@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1-7] - 2023-DATE
+
+### Fixed
+
+- Fixed master-RMQ connection options, causing error working with large queue
+
 ## [0.1-6] - 2023-05-21
 
 ### Fixed
