@@ -26,6 +26,8 @@
 - [Contacts](#contact)
 
 # Overview
+  <img src="docs/promo.gif" width="800" />
+
 The **Ratsky Walnut** is a tool for **automatization and management of the backup** process of your SQL databases. It provides a simple and reliable way to backup your SQL databases on a **schedule or on-demand**, ensuring that you never lose critical data in the event of a system failure or data corruption.
 
 The tool supports a wide range of SQL database platforms, including **MySQL**, **MariaDB**, **PostgreSQL**, and **Microsoft SQL Server**. 
@@ -366,4 +368,4 @@ All rights reserved.
 
 # Contact
 
-If you have any questions or feedback about the Ratsky Walnut, please contact us at rbsm33g0u@mozmail.com. We would be pleased to receive your feedback!
+If you have any questions or feedback about the Ratsky Walnut, please contact us at 28xxgs3im@mozmail.com. We would be pleased to receive your feedback!
