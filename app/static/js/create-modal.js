@@ -85,7 +85,8 @@ $(document).ready(function(){
         });
     });
     $(".editDMS").on('click', function(){
-        $(".editDMS-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="editDMS_${this.id}" class="btn btn-primary editDMSAccept" data-dismiss="modal" aria-label="Close">Yes</button`)
+        $dmsid = this.id
+        $(".editDMS-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="editDMS_${this.id}" class="btn btn-primary editDMSAccept" data-dismiss="modal" aria-label="Close">Yes</button>`)
         $.ajax({
             url: 'object/editObject',
             type: "POST",
@@ -107,6 +108,40 @@ $(document).ready(function(){
                 notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
             }
         })
+
+        $(".editDMSPassword").on('click', function(){
+            $(".editDMSPassword-buttons").html(`<button type="button" class="btn btn-secondary" data-dismiss="modal">No</button><button type="button" id="editDMSPassword_${$dmsid}" class="btn btn-primary editDMSPasswordAccept" data-dismiss="modal" aria-label="Close">Yes</button>`)
+            $(".editDMSPasswordAccept").on('click', function(){
+                $dms_id = this.id.split('_')[1]
+                var $data = {};
+                $('#editDMSPassword').find ('input, textearea, select').each(function() {
+                    $data[this.name] = $(this).val();
+                });
+                $data["id"] = $dms_id
+                console.log($data)
+                $.ajax({
+                    url: 'dms/optionsDMS',
+                    type: "PUT",
+                    dataType: 'json',
+                    data: JSON.stringify($data),
+                    headers: {
+                        'X-CSRFToken': getCookie("csrftoken"),
+                    },
+                    contentType: 'application/json;charset=UTF-8', // post data || get data
+                    success : function(result) {
+                        if (result.status == "200") {
+                            notify('top', 'right', 'feather icon-layers', 'success', 'pass', 'pass', '', ' DMS password updated');
+                        } else {
+                            notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' ' + result.error);
+                        }
+                    },
+                    error: function(xhr, resp, text) {
+                        notify('top', 'right', 'feather icon-layers', 'danger', 'pass', 'pass', '', ' Server error');
+                    }
+                })
+            });
+        });
+
         $(".editDMSAccept").on('click', function(){
             $dms_id = this.id.split('_')[1]
             var $data = {};
