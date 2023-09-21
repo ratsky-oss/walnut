@@ -409,11 +409,15 @@ def get_form_add_dms(request):
         return JsonResponse({"status":"200"})
     elif request.method == 'PUT':
         data = json.loads(request.body)
+        print(data)
         try:
             c = Cryptorator()
-            dms = DMSInfo.objects.filter(id=data["id"]).update(type=data['type'],version=data['version'])
-            dms = DMSInfo.objects.filter(id=data["id"]).first()
-            dst_db = DestinationDatabase.objects.filter(id=dms.dst_db.id).update(host=data['host'], port=data['port'], username=data['username'], password=c.encrypt(data['password']))
+            if "password" in data:
+                dst_db = DestinationDatabase.objects.filter(id=dms.dst_db.id).update(password=c.encrypt(data['password']))
+            else:
+                dms = DMSInfo.objects.filter(id=data["id"]).update(type=data['type'],version=data['version'])
+                dms = DMSInfo.objects.filter(id=data["id"])
+                dst_db = DestinationDatabase.objects.filter(id=dms.dst_db.id).update(host=data['host'], port=data['port'], username=data['username'])
             dms.dst_db = DestinationDatabase.objects.filter(id=dms.dst_db.id).first()
             del c
         except Exception as e:
