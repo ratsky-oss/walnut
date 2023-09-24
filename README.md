@@ -26,6 +26,8 @@
 - [Contacts](#contact)
 
 # Overview
+  <img src="docs/promo.gif" width="800" />
+
 The **Ratsky Walnut** is a tool for **automatization and management of the backup** process of your SQL databases. It provides a simple and reliable way to backup your SQL databases on a **schedule or on-demand**, ensuring that you never lose critical data in the event of a system failure or data corruption.
 
 The tool supports a wide range of SQL database platforms, including **MySQL**, **MariaDB**, **PostgreSQL**, and **Microsoft SQL Server**. 
@@ -80,16 +82,16 @@ The main goal of the project is to transform your backup routine to a pleasant e
 
 - Download the deb package
     ```
-    wget https://ra-sky.github.io/walnut/walnut_0.1-5.deb
+    wget https://ra-sky.github.io/walnut/walnut_0.1-7.deb
     ```
 - Install 
     ```
-    sudo apt install -y ./walnut_0.1-5.deb
+    sudo apt install -y ./walnut_0.1-7.deb
     ```
 - Go to **https://{your_ip_address}/walnut/**
 - Accept the self-signed certificate
 
-> Default user credentials
+> Default user credentials | CHANGE REQUIRED
 > ```
 > username: admin
 > password: admin
@@ -366,4 +368,4 @@ All rights reserved.
 
 # Contact
 
-If you have any questions or feedback about the Ratsky Walnut, please contact us at rbsm33g0u@mozmail.com. We would be pleased to receive your feedback!
+If you have any questions or feedback about the Ratsky Walnut, please contact us at 28xxgs3im@mozmail.com. We would be pleased to receive your feedback!

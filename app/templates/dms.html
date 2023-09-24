@@ -55,12 +55,32 @@ For more information on the GPL 3.0 license, please visit https://www.gnu.org/li
                                                 <input name="username" type="text" class="form-control editDMSinput" placeholder="backup">
                                             </div>
                                             <div class="form-group">
-                                                <label>Password</label>
-                                                <input name="password" type="Password" class="form-control editDMSinput" placeholder="qwerty">
+                                                <button type="button" class="btn btn-outline-secondary editDMSPassword" data-toggle="modal" data-target="#editDMSPassword" aria-label="Close">Change password</button>
                                             </div>
                                         </form>
                                     </div>
                                     <div class="modal-footer editDMS-buttons">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="editDMSPassword" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editDMSPasswordTitle" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editDMSPasswordTitle">delete DMS</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        {% csrf_token %}
+                                        <form id="editDMSPasswordForm">
+                                            <div class="form-group">
+                                                <label>New password</label>
+                                                <input name="password" type="password" class="form-control ditDMSPasswordinput" placeholder="">
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer editDMSPassword-buttons">
                                     </div>
                                 </div>
                             </div>
