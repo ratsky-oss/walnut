@@ -82,16 +82,16 @@ The main goal of the project is to transform your backup routine to a pleasant e
 
 - Download the deb package
     ```
-    wget https://ra-sky.github.io/walnut/walnut_0.1-5.deb
+    wget https://ra-sky.github.io/walnut/walnut_0.1-7.deb
     ```
 - Install 
     ```
-    sudo apt install -y ./walnut_0.1-5.deb
+    sudo apt install -y ./walnut_0.1-7.deb
     ```
 - Go to **https://{your_ip_address}/walnut/**
 - Accept the self-signed certificate
 
-> Default user credentials
+> Default user credentials | CHANGE REQUIRED
 > ```
 > username: admin
 > password: admin
