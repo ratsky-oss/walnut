@@ -4,7 +4,8 @@
 
 ### Fixed
 
-- Fixed master-RMQ connection options, causing error working with large queue
+- CRUCIAL: Fixed master-RMQ connection options, causing error working with large queue
+- Fixed edit DMS password window
 
 ## [0.1-6] - 2023-05-21
 

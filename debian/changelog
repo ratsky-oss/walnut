@@ -1,6 +1,6 @@
-walnut (0.1-7) UNRELEASED; urgency=medium
+walnut (0.1-7) unstable; urgency=medium
 
-  * Fix master rmq
+  * Crutail master fix
 
  -- Andy Livitsky <ratsky@example.com>  Sun, 21 May 2023 21:00:00 +0300
 walnut (0.1-6) unstable; urgency=medium
