@@ -1,4 +1,4 @@
-# Ratskt Walnut Backup
+# Ratsky Walnut Backup
 
 <!-- ![alt text](docs/logo_gradient_square.svg "containers"){:height="100px" width="100px"} -->
 <img src="docs/logo_gradient_square.svg" alt="alt text" width="300" height="300">
@@ -82,7 +82,7 @@ The main goal of the project is to transform your backup routine to a pleasant e
 
 - Download the deb package
     ```
-    wget https://ra-sky.github.io/walnut/walnut_0.1-7.deb
+    wget https://ratsky-oss.github.io/walnut/walnut_0.1-7.deb
     ```
 - Install 
     ```
@@ -99,12 +99,12 @@ The main goal of the project is to transform your backup routine to a pleasant e
 
 
 # Installation
-https://ra-sky.github.io/walnut
+https://ratsky-oss.github.io/walnut
 To install Ratsky Walnut backup utility:
-- [Choose version](https://ra-sky.github.io/walnut/)
+- [Choose version](https://ratsky-oss.github.io/walnut/)
 - Download deb package 
     ```
-    wget https://ra-sky.github.io/walnut/walnut_{version}.deb
+    wget https://ratsky-oss.github.io/walnut/walnut_{version}.deb
     ```
 - Install 
     ```
